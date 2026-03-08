@@ -13,6 +13,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Force rebuild pour prendre en compte les variables d'environnement Vercel
     if (!isSupabaseConfigured) {
       setLoading(false);
       return;
