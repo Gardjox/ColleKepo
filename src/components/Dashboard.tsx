@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
             let potentialProfit = 0;
             let soldCount = 0;
 
-            (items || []).forEach(item => {
+            (items || []).forEach((item: any) => {
                 if (item.is_sold) {
                     soldCount++;
                     realProfit += (item.sold_price || 0) - (item.purchase_price || 0);

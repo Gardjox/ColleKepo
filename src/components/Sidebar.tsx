@@ -4,7 +4,6 @@ import {
     Package,
     Layers,
     TrendingUp,
-    Settings,
     ChevronRight,
     LogOut
 } from 'lucide-react';

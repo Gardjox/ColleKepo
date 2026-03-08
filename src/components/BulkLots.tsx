@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera, Upload } from 'lucide-react';
+import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Lot {

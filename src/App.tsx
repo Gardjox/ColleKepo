@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import Sidebar from './components/Sidebar';
 import Inventory from './components/Inventory';
@@ -19,13 +19,13 @@ function App() {
     }
 
     // Récupérer la session initiale
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => {
       setSession(session);
       setLoading(false);
     });
 
     // Écouter les changements d'auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
       setSession(session);
     });
 
