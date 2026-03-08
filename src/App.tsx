@@ -13,7 +13,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Force rebuild pour prendre en compte les variables d'environnement Vercel
+    // Force rebuild pour prendre en compte les variables d'environnement Vercel.
     if (!isSupabaseConfigured) {
       setLoading(false);
       return;
@@ -49,7 +49,10 @@ function App() {
             </span>
           </p>
           <p className="text-slate-500 text-[11px] mb-6 leading-relaxed">
-            Ajoutez bien les clés suivantes dans vos variables d'environnement Vercel :
+            Variables détectées par le site : <br />
+            <code className="bg-slate-100 p-1 rounded text-red-400">
+              {Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')).join(', ') || "AUCUNE variable VITE_ détectée"}
+            </code>
           </p>
           <div className="bg-slate-900 rounded-xl p-4 text-left mb-6 overflow-x-auto">
             <code className="text-[11px] text-teal-400 block whitespace-pre">
