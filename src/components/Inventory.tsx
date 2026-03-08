@@ -428,30 +428,30 @@ const Inventory: React.FC = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">Article</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    <th className="px-3 sm:px-6 py-4 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">Article</th>
+                                    <th className="px-3 sm:px-6 py-4 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                         <div className="flex items-center gap-1.5">
                                             Achat
                                             {sortBy.startsWith('purchase') && (sortBy === 'purchase_newest' ? <ArrowDown className="w-2.5 h-2.5 text-teal-500" /> : <ArrowUp className="w-2.5 h-2.5 text-teal-500" />)}
                                         </div>
                                     </th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Potentiel</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+                                    <th className="px-3 sm:px-6 py-4 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Potentiel</th>
+                                    <th className="px-3 sm:px-6 py-4 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
                                         <div className="flex items-center justify-center gap-1.5">
                                             Statut
                                             {sortBy.startsWith('sold') && (sortBy === 'sold_newest' ? <ArrowDown className="w-2.5 h-2.5 text-emerald-500" /> : <ArrowUp className="w-2.5 h-2.5 text-emerald-500" />)}
                                         </div>
                                     </th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                                    <th className="px-3 sm:px-6 py-4 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {filteredItems.map((item) => (
                                     <tr key={item.id} className="hover:bg-white transition-colors group">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4">
+                                        <td className="px-3 sm:px-6 py-4">
+                                            <div className="flex items-center gap-3 sm:gap-4">
                                                 <div
-                                                    className="w-24 h-24 bg-white rounded-xl flex items-center justify-center shrink-0 border border-slate-100 overflow-hidden shadow-sm cursor-zoom-in group/img relative"
+                                                    className="w-16 h-16 sm:w-24 sm:h-24 bg-white rounded-xl flex items-center justify-center shrink-0 border border-slate-100 overflow-hidden shadow-sm cursor-zoom-in group/img relative"
                                                     onClick={() => item.photoUrl && setZoomItem(item)}
                                                 >
                                                     {item.photoUrl ? (
@@ -470,11 +470,11 @@ const Inventory: React.FC = () => {
                                                         <ImageIcon className="text-slate-200 w-5 h-5" />
                                                     )}
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-black text-slate-800 leading-none mb-1.5">{item.name}</p>
-                                                    <div className="flex items-center gap-2">
+                                                <div className="min-w-0">
+                                                    <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight mb-1 truncate max-w-[100px] sm:max-w-none">{item.name}</p>
+                                                    <div className="flex flex-wrap items-center gap-1.5">
                                                         <span className={cn(
-                                                            "px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest",
+                                                            "px-1.5 py-0.5 rounded-md text-[7px] sm:text-[8px] font-black uppercase tracking-widest",
                                                             item.type === 'Carte' && "bg-blue-50 text-blue-600",
                                                             item.type === 'Scellé' && "bg-purple-50 text-purple-600",
                                                             item.type === 'Carte Gradée' && "bg-amber-50 text-amber-600",
@@ -483,59 +483,56 @@ const Inventory: React.FC = () => {
                                                             {item.type}
                                                         </span>
                                                         {item.purchaseLocation && (
-                                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest truncate max-w-[80px]">{item.purchaseLocation}</span>
+                                                            <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest truncate max-w-[60px] sm:max-w-[80px]">{item.purchaseLocation}</span>
                                                         )}
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-3 sm:px-6 py-4">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-slate-700">{Number(item.purchasePrice).toFixed(2)}€</span>
-                                                <span className="text-[9px] text-slate-400 font-bold uppercase flex items-center gap-1">
-                                                    <Calendar className="w-2.5 h-2.5" />
-                                                    {item.purchaseDate ? new Date(item.purchaseDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : 'Inconnue'}
+                                                <span className="text-xs sm:text-sm font-black text-slate-700">{Number(item.purchasePrice).toFixed(2)}€</span>
+                                                <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase flex items-center gap-1">
+                                                    <Calendar className="w-2 sm:w-2.5 h-2 sm:h-2.5" />
+                                                    {item.purchaseDate ? new Date(item.purchaseDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '-'}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-black text-emerald-600 font-mono text-right">
+                                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-black text-emerald-600 font-mono text-right">
                                             {Number(item.potentialResalePrice).toFixed(2)}€
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 sm:px-6 py-4 text-center">
                                             {item.isSold ? (
                                                 <div className="inline-flex flex-col items-center">
-                                                    <span className="flex items-center gap-1.5 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1 opacity-70">
-                                                        Vendu le {item.soldDate ? new Date(item.soldDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '-'}
-                                                    </span>
-                                                    <span className="text-[11px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 shadow-sm shadow-emerald-50">+{item.soldPrice?.toFixed(2)}€</span>
+                                                    <span className="text-[9px] sm:text-[11px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg border border-emerald-100 shadow-sm shadow-emerald-50">+{item.soldPrice?.toFixed(2)}€</span>
                                                 </div>
                                             ) : (
-                                                <span className="flex items-center justify-center gap-1.5 text-teal-600 text-[10px] font-black uppercase tracking-widest bg-teal-50/50 px-3 py-1.5 rounded-full border border-teal-100/50">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                                                    En Stock
+                                                <span className="flex items-center justify-center gap-1.5 text-teal-600 text-[8px] sm:text-[10px] font-black uppercase tracking-widest bg-teal-50/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full border border-teal-100/50">
+                                                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                                                    Stock
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <td className="px-3 sm:px-6 py-4">
+                                            <div className="flex items-center justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                                 {!item.isSold && (
                                                     <button
                                                         onClick={() => handleMarkAsSold(item.id)}
-                                                        className="p-2 text-teal-600 hover:bg-teal-50 rounded-xl transition-all"
-                                                        title="Marquer comme vendu"
+                                                        className="p-1.5 sm:p-2 text-teal-600 hover:bg-teal-50 rounded-lg sm:rounded-xl transition-all"
+                                                        title="Vendu"
                                                     >
                                                         <DollarSign className="w-4 h-4" />
                                                     </button>
                                                 )}
                                                 <button
                                                     onClick={() => handleOpenModal(item)}
-                                                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
+                                                    className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg sm:rounded-xl transition-all"
                                                 >
                                                     <Edit2 className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(item.id)}
-                                                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                                    className="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-all"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>

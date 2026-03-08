@@ -114,12 +114,12 @@ const Dashboard: React.FC = () => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {statCards.map((stat, index) => (
-                    <div key={index} className="premium-card p-6 flex items-start justify-between group hover:border-teal-100 transition-all hover:shadow-xl hover:shadow-slate-200/50">
+                    <div key={index} className="premium-card p-4 sm:p-6 flex items-start justify-between group hover:border-teal-100 transition-all hover:shadow-xl hover:shadow-slate-200/50">
                         <div>
-                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-2 opacity-70">{stat.title}</p>
-                            <h3 className="text-2xl font-black text-slate-800">
+                            <p className="text-slate-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 sm:mb-2 opacity-70">{stat.title}</p>
+                            <h3 className="text-xl sm:text-2xl font-black text-slate-800">
                                 {stat.value}{stat.unit}
                             </h3>
                             <div className="flex items-center gap-1 mt-2">
@@ -130,14 +130,14 @@ const Dashboard: React.FC = () => {
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.description}</span>
                             </div>
                         </div>
-                        <div className={`p-3 rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform`}>
-                            <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                        <div className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform`}>
+                            <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.color}`} />
                         </div>
                     </div>
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 pb-12">
                 {/* Dernières Activités */}
                 <div className="lg:col-span-2 premium-card overflow-hidden h-full flex flex-col">
                     <div className="p-6 border-b border-slate-50 flex justify-between items-center bg-white/50 backdrop-blur-sm">
