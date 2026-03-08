@@ -41,7 +41,14 @@ function App() {
           </div>
           <h1 className="text-xl font-bold text-slate-800 mb-4">Configuration Requise</h1>
           <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-            Pour que l'application fonctionne, vous devez ajouter vos clés Supabase dans un fichier <code className="bg-slate-100 px-1.5 py-0.5 rounded text-teal-600 font-mono">.env.local</code> à la racine du projet.
+            L'application ne détecte pas vos accès Supabase. <br />
+            <span className="font-bold text-red-500">
+              {!import.meta.env.VITE_SUPABASE_URL && "⚠️ URL manquante "}
+              {!import.meta.env.VITE_SUPABASE_ANON_KEY && "⚠️ Clé API manquante"}
+            </span>
+          </p>
+          <p className="text-slate-500 text-[11px] mb-6 leading-relaxed">
+            Ajoutez bien les clés suivantes dans vos variables d'environnement Vercel :
           </p>
           <div className="bg-slate-900 rounded-xl p-4 text-left mb-6 overflow-x-auto">
             <code className="text-[11px] text-teal-400 block whitespace-pre">
