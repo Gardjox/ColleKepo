@@ -1,0 +1,17 @@
+{
+  "name": "ColleKepo",
+  "short_name": "ColleKepo",
+  "description": "Gestionnaire d'inventaire TCG Premium",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d9488",
+  "theme_color": "#0d9488",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
