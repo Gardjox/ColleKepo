@@ -109,7 +109,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="col-span-2">
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Nom de l'article</label>
                             <input

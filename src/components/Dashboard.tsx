@@ -240,6 +240,61 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
+                {/* Marketplaces & Liens Utiles */}
+                <div className="premium-card p-6 bg-gradient-to-br from-white to-slate-50/50">
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="p-2 bg-teal-50 rounded-lg">
+                            <ArrowUpRight className="w-4 h-4 text-teal-600" />
+                        </div>
+                        <div>
+                            <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">Marketplaces</h4>
+                            <p className="text-[10px] font-bold text-slate-400 font-bold uppercase tracking-widest">Accès Rapides</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <a
+                            href="https://www.vinted.fr"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-teal-200 hover:shadow-md transition-all group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-[#09B1BA]/10 flex items-center justify-center text-[#09B1BA] font-black text-xs">V</div>
+                                <span className="font-black text-slate-700">Vinted</span>
+                            </div>
+                            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-teal-500 transition-colors" />
+                        </a>
+
+                        <a
+                            href="https://www.cardmarket.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-blue-200 hover:shadow-md transition-all group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                                    <Package className="w-5 h-5" />
+                                </div>
+                                <span className="font-black text-slate-700">Cardmarket</span>
+                            </div>
+                            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
+                        </a>
+
+                        <a
+                            href="https://www.ebay.fr"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-amber-200 hover:shadow-md transition-all group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 font-bold">E</div>
+                                <span className="font-black text-slate-700">eBay</span>
+                            </div>
+                            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-amber-500 transition-colors" />
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     );
