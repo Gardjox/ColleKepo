@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Camera, Save, Upload, Calendar } from 'lucide-react';
+import { X, Camera, Save, Upload, Calendar, ChevronDown } from 'lucide-react';
+import { POKEMON_SERIES } from '../data/pokemonSets';
 import type { ProductType, InventoryItem } from '../types';
 
 interface AddItemModalProps {
@@ -17,6 +18,8 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
     const [formData, setFormData] = useState({
         name: '',
         type: 'Carte' as ProductType,
+        series: '',
+        subSeries: '',
         purchasePrice: '',
         potentialResalePrice: '',
         purchaseLocation: '',
@@ -24,11 +27,21 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
         details: '',
     });
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 640);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     useEffect(() => {
         if (initialData) {
             setFormData({
                 name: initialData.name,
                 type: initialData.type,
+                series: initialData.series || '',
+                subSeries: initialData.subSeries || '',
                 purchasePrice: initialData.purchasePrice.toString(),
                 potentialResalePrice: initialData.potentialResalePrice.toString(),
                 purchaseLocation: initialData.purchaseLocation || '',
@@ -40,6 +53,8 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
             setFormData({
                 name: '',
                 type: 'Carte',
+                series: '',
+                subSeries: '',
                 purchasePrice: '',
                 potentialResalePrice: '',
                 purchaseLocation: '',
@@ -52,6 +67,8 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
     }, [initialData, isOpen]);
 
     if (!isOpen) return null;
+
+    const selectedSeries = POKEMON_SERIES.find(s => s.id === formData.series);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -125,7 +142,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                             <select
                                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm font-medium"
                                 value={formData.type}
-                                onChange={(e) => setFormData({ ...formData, type: e.target.value as ProductType })}
+                                onChange={(e) => setFormData({ ...formData, type: e.target.value as ProductType, series: '', subSeries: '' })}
                             >
                                 <option>Carte</option>
                                 <option>Scellé</option>
@@ -133,6 +150,48 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                 <option>Objet</option>
                             </select>
                         </div>
+
+                        {formData.type === 'Carte' && (
+                            <>
+                                <div className="w-full">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Série</label>
+                                    <div className="relative">
+                                        <select
+                                            className="w-full appearance-none px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm font-medium"
+                                            value={formData.series}
+                                            onChange={(e) => setFormData({ ...formData, series: e.target.value, subSeries: '' })}
+                                        >
+                                            <option value="">Sélectionner une série...</option>
+                                            {POKEMON_SERIES.map(series => (
+                                                <option key={series.id} value={series.id}>{series.name}</option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                    </div>
+                                </div>
+
+                                {formData.series && (
+                                    <div className="w-full">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Sous-série</label>
+                                        <div className="relative">
+                                            <select
+                                                className="w-full appearance-none px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm font-medium"
+                                                value={formData.subSeries}
+                                                onChange={(e) => setFormData({ ...formData, subSeries: e.target.value })}
+                                            >
+                                                <option value="">Sélectionner une sous-série...</option>
+                                                {selectedSeries?.sets.map(set => (
+                                                    <option key={set.id} value={set.id}>
+                                                        {isMobile ? set.shortName : set.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
 
                         <div className="w-full">
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Lieu d'achat</label>

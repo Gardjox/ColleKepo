@@ -13,7 +13,8 @@ export interface InventoryItem {
     isSold: boolean;
     soldPrice?: number;
     soldDate?: string;
-    lotId?: string;
+    series?: string;
+    subSeries?: string;
     createdAt: number;
 }
 

@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { supabase } from '../lib/supabase';
 import type { InventoryItem, ProductType } from '../types';
+import { POKEMON_SERIES } from '../data/pokemonSets';
 import AddItemModal from './AddItemModal';
 
 type SortOption = 'created_at' | 'purchase_newest' | 'purchase_oldest' | 'sold_newest' | 'sold_oldest' | 'price_high' | 'price_low';
@@ -36,6 +37,13 @@ const Inventory: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
     const [zoomItem, setZoomItem] = useState<InventoryItem | null>(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 640);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const fetchItems = async () => {
         setLoading(true);
@@ -60,6 +68,8 @@ const Inventory: React.FC = () => {
                 soldPrice: dbItem.sold_price,
                 soldDate: dbItem.sold_date,
                 photoUrl: dbItem.photo_url,
+                series: dbItem.series,
+                subSeries: dbItem.sub_series,
                 lotId: dbItem.lot_id,
                 createdAt: new Date(dbItem.created_at).getTime()
             }));
@@ -114,6 +124,8 @@ const Inventory: React.FC = () => {
             const itemData = {
                 name: newItem.name,
                 type: newItem.type,
+                series: newItem.series || null,
+                sub_series: newItem.subSeries || null,
                 purchase_price: parseFloat(newItem.purchasePrice) || 0,
                 potential_resale_price: parseFloat(newItem.potentialResalePrice) || 0,
                 purchase_location: newItem.purchaseLocation,
@@ -482,6 +494,16 @@ const Inventory: React.FC = () => {
                                                         )}>
                                                             {item.type}
                                                         </span>
+                                                        {item.type === 'Carte' && item.subSeries && (
+                                                            <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[7px] sm:text-[8px] font-black uppercase tracking-widest">
+                                                                {(() => {
+                                                                    const series = POKEMON_SERIES.find(s => s.id === item.series);
+                                                                    const set = series?.sets.find(s => s.id === item.subSeries);
+                                                                    if (!set) return item.subSeries;
+                                                                    return isMobile ? set.shortName : set.name;
+                                                                })()}
+                                                            </span>
+                                                        )}
                                                         {item.purchaseLocation && (
                                                             <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest truncate max-w-[60px] sm:max-w-[80px]">{item.purchaseLocation}</span>
                                                         )}
