@@ -569,7 +569,16 @@ const Inventory: React.FC = () => {
                                                             </span>
                                                         )}
                                                         {item.type === 'Carte' && item.condition && (
-                                                            <span className="px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-600 text-[7px] sm:text-[8px] font-black uppercase tracking-widest border border-stone-200">
+                                                            <span className={`px-1.5 py-0.5 rounded-md text-[7px] sm:text-[8px] font-black uppercase tracking-widest border ${
+                                                                item.condition === 'Mint' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                                item.condition === 'Near Mint' ? 'bg-sky-100 text-sky-700 border-sky-200' :
+                                                                item.condition === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                                                item.condition === 'Good' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                                                item.condition === 'Light Played' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                                                item.condition === 'Played' ? 'bg-red-100 text-red-600 border-red-200' :
+                                                                item.condition === 'Poor' ? 'bg-rose-100 text-rose-700 border-rose-200' :
+                                                                'bg-stone-100 text-stone-600 border-stone-200'
+                                                            }`}>
                                                                 {item.condition}
                                                             </span>
                                                         )}
