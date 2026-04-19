@@ -16,6 +16,7 @@ export interface InventoryItem {
     series?: string;
     subSeries?: string;
     language?: string;
+    condition?: string;
     createdAt: number;
 }
 

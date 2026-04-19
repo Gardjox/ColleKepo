@@ -71,6 +71,7 @@ const Inventory: React.FC = () => {
                 series: dbItem.series,
                 subSeries: dbItem.sub_series,
                 language: dbItem.language,
+                condition: dbItem.condition,
                 lotId: dbItem.lot_id,
                 createdAt: new Date(dbItem.created_at).getTime()
             }));
@@ -128,6 +129,7 @@ const Inventory: React.FC = () => {
                 series: newItem.series || null,
                 sub_series: newItem.subSeries || null,
                 language: newItem.language || null,
+                condition: newItem.condition || null,
                 purchase_price: parseFloat(newItem.purchasePrice) || 0,
                 potential_resale_price: parseFloat(newItem.potentialResalePrice) || 0,
                 purchase_location: newItem.purchaseLocation,
@@ -509,6 +511,11 @@ const Inventory: React.FC = () => {
                                                         {item.type === 'Carte' && item.language && (
                                                             <span className="text-[10px] sm:text-xs" title={`Langue: ${item.language}`}>
                                                                 {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
+                                                            </span>
+                                                        )}
+                                                        {item.type === 'Carte' && item.condition && (
+                                                            <span className="px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-600 text-[7px] sm:text-[8px] font-black uppercase tracking-widest border border-stone-200">
+                                                                {item.condition}
                                                             </span>
                                                         )}
                                                         {item.purchaseLocation && (

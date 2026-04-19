@@ -26,6 +26,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
         purchaseDate: new Date().toISOString().split('T')[0],
         details: '',
         language: 'FR',
+        condition: 'Mint',
     });
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
@@ -49,6 +50,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                 purchaseDate: initialData.purchaseDate || new Date().toISOString().split('T')[0],
                 details: initialData.details || '',
                 language: initialData.language || 'FR',
+                condition: initialData.condition || 'Mint',
             });
             setPreviewUrl(initialData.photoUrl || null);
         } else {
@@ -63,6 +65,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                 purchaseDate: new Date().toISOString().split('T')[0],
                 details: '',
                 language: 'FR',
+                condition: 'Mint',
             });
             setPreviewUrl(null);
         }
@@ -218,6 +221,26 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                         >
                                             🇺🇸 EN
                                         </button>
+                                    </div>
+                                </div>
+                                
+                                <div className="w-full sm:col-span-2">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">État de la carte</label>
+                                    <div className="relative">
+                                        <select
+                                            className="w-full appearance-none px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm font-medium"
+                                            value={formData.condition}
+                                            onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+                                        >
+                                            <option value="Mint">Mint (M)</option>
+                                            <option value="Near Mint">Near Mint (NM)</option>
+                                            <option value="Excellent">Excellent (EX)</option>
+                                            <option value="Good">Good (GD)</option>
+                                            <option value="Light Played">Light Played (LP)</option>
+                                            <option value="Played">Played (PL)</option>
+                                            <option value="Poor">Poor (PR)</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                                     </div>
                                 </div>
                             </>
