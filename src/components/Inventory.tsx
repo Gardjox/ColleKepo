@@ -73,6 +73,7 @@ const Inventory: React.FC = () => {
                 language: dbItem.language,
                 condition: dbItem.condition,
                 cardFinish: dbItem.card_finish,
+                cardNumber: dbItem.card_number,
                 lotId: dbItem.lot_id,
                 createdAt: new Date(dbItem.created_at).getTime()
             }));
@@ -132,6 +133,7 @@ const Inventory: React.FC = () => {
                 language: newItem.language || null,
                 condition: newItem.condition || null,
                 card_finish: newItem.cardFinish || null,
+                card_number: newItem.cardNumber || null,
                 purchase_price: parseFloat(newItem.purchasePrice) || 0,
                 potential_resale_price: parseFloat(newItem.potentialResalePrice) || 0,
                 purchase_location: newItem.purchaseLocation,
@@ -489,7 +491,12 @@ const Inventory: React.FC = () => {
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight mb-1 truncate max-w-[100px] sm:max-w-none">{item.name}</p>
+                                                    <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight mb-1 truncate max-w-[100px] sm:max-w-none">
+                                                        {item.name} 
+                                                        {item.type === 'Carte' && item.cardNumber && (
+                                                            <span className="text-slate-400 font-bold ml-1.5 text-[10px] sm:text-xs">N°{item.cardNumber}</span>
+                                                        )}
+                                                    </p>
                                                     <div className="flex flex-wrap items-center gap-1.5">
                                                         <span className={cn(
                                                             "px-1.5 py-0.5 rounded-md text-[7px] sm:text-[8px] font-black uppercase tracking-widest",

@@ -28,6 +28,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
         language: 'FR',
         condition: 'Mint',
         cardFinish: 'Standard',
+        cardNumber: '',
     });
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
@@ -53,6 +54,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                 language: initialData.language || 'FR',
                 condition: initialData.condition || 'Mint',
                 cardFinish: initialData.cardFinish || 'Standard',
+                cardNumber: initialData.cardNumber || '',
             });
             setPreviewUrl(initialData.photoUrl || null);
         } else {
@@ -69,6 +71,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                 language: 'FR',
                 condition: 'Mint',
                 cardFinish: 'Standard',
+                cardNumber: '',
             });
             setPreviewUrl(null);
         }
@@ -182,20 +185,29 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                 {formData.series && (
                                     <div className="w-full">
                                         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Sous-série</label>
-                                        <div className="relative">
-                                            <select
-                                                className="w-full appearance-none px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm font-medium"
-                                                value={formData.subSeries}
-                                                onChange={(e) => setFormData({ ...formData, subSeries: e.target.value })}
-                                            >
-                                                <option value="">Sélectionner une sous-série...</option>
-                                                {selectedSeries?.sets.map(set => (
-                                                    <option key={set.id} value={set.id}>
-                                                        {isMobile ? set.shortName : set.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                        <div className="relative flex gap-2">
+                                            <div className="relative flex-1">
+                                                <select
+                                                    className="w-full appearance-none px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm font-medium"
+                                                    value={formData.subSeries}
+                                                    onChange={(e) => setFormData({ ...formData, subSeries: e.target.value })}
+                                                >
+                                                    <option value="">Sélectionner une sous-série...</option>
+                                                    {selectedSeries?.sets.map(set => (
+                                                        <option key={set.id} value={set.id}>
+                                                            {isMobile ? set.shortName : set.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                className="w-1/3 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm font-medium"
+                                                placeholder="N° (ex: 12/165)"
+                                                value={formData.cardNumber}
+                                                onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
+                                            />
                                         </div>
                                     </div>
                                 )}

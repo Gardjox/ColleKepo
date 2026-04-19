@@ -18,6 +18,7 @@ export interface InventoryItem {
     language?: string;
     condition?: string;
     cardFinish?: string;
+    cardNumber?: string;
     createdAt: number;
 }
 
