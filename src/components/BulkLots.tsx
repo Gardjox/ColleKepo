@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { POKEMON_SERIES } from '../data/pokemonSets';
 
 interface Lot {
     id: string;
@@ -20,12 +21,23 @@ const BulkLots: React.FC = () => {
     const [isSaving, setIsSaving] = useState(false);
 
     // Nouvel état pour la composition du lot
-    const [composedItems, setComposedItems] = useState<{ name: string, type: string, quantity: number, photo: File | null, previewUrl?: string }[]>([]);
+    const [composedItems, setComposedItems] = useState<{ 
+        name: string, type: string, quantity: number, photo: File | null, previewUrl?: string,
+        series?: string, subSeries?: string, language?: string, condition?: string, cardFinish?: string, cardNumber?: string 
+    }[]>([]);
     const [newItemName, setNewItemName] = useState('');
     const [newItemType, setNewItemType] = useState('Carte');
     const [newItemQty, setNewItemQty] = useState<number>(1);
     const [newItemPhoto, setNewItemPhoto] = useState<File | null>(null);
     const [newItemPreview, setNewItemPreview] = useState<string | null>(null);
+    
+    // Nouveaux états de détails (Carte)
+    const [newItemSeries, setNewItemSeries] = useState('');
+    const [newItemSubSeries, setNewItemSubSeries] = useState('');
+    const [newItemNumber, setNewItemNumber] = useState('');
+    const [newItemLanguage, setNewItemLanguage] = useState('FR');
+    const [newItemCondition, setNewItemCondition] = useState('Mint');
+    const [newItemFinish, setNewItemFinish] = useState('Standard');
 
     const itemCount = composedItems.reduce((acc, item) => acc + item.quantity, 0);
     const breakEven = itemCount > 0 ? (lotPrice / itemCount).toFixed(2) : '0.00';
@@ -67,12 +79,21 @@ const BulkLots: React.FC = () => {
             type: newItemType,
             quantity: newItemQty,
             photo: newItemPhoto,
-            previewUrl: newItemPreview || undefined
+            previewUrl: newItemPreview || undefined,
+            series: newItemType === 'Carte' ? newItemSeries : undefined,
+            subSeries: newItemType === 'Carte' ? newItemSubSeries : undefined,
+            cardNumber: newItemType === 'Carte' ? newItemNumber : undefined,
+            language: newItemType === 'Carte' ? newItemLanguage : undefined,
+            condition: newItemType === 'Carte' ? newItemCondition : undefined,
+            cardFinish: newItemType === 'Carte' ? newItemFinish : undefined,
         }]);
         setNewItemName('');
         setNewItemQty(1);
         setNewItemPhoto(null);
         setNewItemPreview(null);
+        setNewItemSeries('');
+        setNewItemSubSeries('');
+        setNewItemNumber('');
     };
 
     const removeItemFromComposition = (index: number) => {
@@ -134,6 +155,12 @@ const BulkLots: React.FC = () => {
                         lot_id: lotData.id,
                         name: item.quantity > 1 ? `${item.name} (${i + 1}/${item.quantity})` : item.name,
                         type: item.type,
+                        series: item.series || null,
+                        sub_series: item.subSeries || null,
+                        language: item.language || null,
+                        condition: item.condition || null,
+                        card_finish: item.cardFinish || null,
+                        card_number: item.cardNumber || null,
                         purchase_price: parseFloat(breakEven),
                         potential_resale_price: 0,
                         purchase_location: lotName,
@@ -288,10 +315,65 @@ const BulkLots: React.FC = () => {
                                             )}
                                         </button>
                                     </div>
+                                    
+                                    {newItemType === 'Carte' && (
+                                        <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-teal-500/30">
+                                            <div className="flex gap-2">
+                                                <select 
+                                                    value={newItemSeries} 
+                                                    onChange={(e) => { setNewItemSeries(e.target.value); setNewItemSubSeries(''); }} 
+                                                    className="flex-1 bg-teal-700/30 border border-teal-400/50 rounded-lg px-2 py-2 text-[10px] text-white focus:outline-none"
+                                                >
+                                                    <option value="">Série...</option>
+                                                    {POKEMON_SERIES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                                </select>
+                                                {newItemSeries && (
+                                                    <select 
+                                                        value={newItemSubSeries} 
+                                                        onChange={(e) => setNewItemSubSeries(e.target.value)} 
+                                                        className="flex-1 bg-teal-700/30 border border-teal-400/50 rounded-lg px-2 py-2 text-[10px] text-white focus:outline-none"
+                                                    >
+                                                        <option value="">Sous-série...</option>
+                                                        {POKEMON_SERIES.find(s => s.id === newItemSeries)?.sets.map(s => (
+                                                            <option key={s.id} value={s.id}>{s.shortName}</option>
+                                                        ))}
+                                                    </select>
+                                                )}
+                                                <input 
+                                                    type="text" 
+                                                    value={newItemNumber} 
+                                                    onChange={(e) => setNewItemNumber(e.target.value)} 
+                                                    placeholder="N°" 
+                                                    className="w-14 bg-teal-700/30 border border-teal-400/50 rounded-lg px-2 py-2 text-[10px] text-white placeholder-teal-300 focus:outline-none" 
+                                                />
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <select value={newItemLanguage} onChange={(e) => setNewItemLanguage(e.target.value)} className="flex-1 bg-teal-700/30 border border-teal-400/50 rounded-lg px-1 py-2 text-[9px] text-white focus:outline-none">
+                                                    <option value="FR">🇫🇷 FR</option>
+                                                    <option value="JAP">🇯🇵 JAP</option>
+                                                    <option value="EN">🇺🇸 EN</option>
+                                                </select>
+                                                <select value={newItemCondition} onChange={(e) => setNewItemCondition(e.target.value)} className="flex-[1.5] bg-teal-700/30 border border-teal-400/50 rounded-lg px-1 py-2 text-[9px] text-white focus:outline-none">
+                                                    <option value="Mint">Mint (M)</option>
+                                                    <option value="Near Mint">Near Mint (NM)</option>
+                                                    <option value="Excellent">Excellent (EX)</option>
+                                                    <option value="Good">Good (GD)</option>
+                                                    <option value="Light Played">Light Played (LP)</option>
+                                                    <option value="Played">Played (PL)</option>
+                                                    <option value="Poor">Poor (PR)</option>
+                                                </select>
+                                                <select value={newItemFinish} onChange={(e) => setNewItemFinish(e.target.value)} className="flex-1 bg-teal-700/30 border border-teal-400/50 rounded-lg px-1 py-2 text-[9px] text-white focus:outline-none">
+                                                    <option value="Standard">Standard</option>
+                                                    <option value="Reverse">✨ Rev.</option>
+                                                    <option value="Holo">🌟 Holo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 <button
                                     onClick={addItemToComposition}
-                                    className="p-3 bg-white text-teal-600 rounded-lg hover:bg-teal-50 transition-colors h-[72px] flex items-center justify-center shadow-lg"
+                                    className="p-3 bg-white text-teal-600 rounded-lg hover:bg-teal-50 transition-colors flex items-center justify-center shadow-lg self-stretch"
                                 >
                                     <Plus className="w-5 h-5" />
                                 </button>
@@ -317,7 +399,17 @@ const BulkLots: React.FC = () => {
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-bold text-white leading-tight">{item.name}</span>
-                                                <span className="text-[8px] font-black uppercase tracking-widest text-teal-200 opacity-70">{item.type}</span>
+                                                <span className="text-[8px] font-black uppercase tracking-widest text-teal-200 opacity-70">
+                                                    {item.type} 
+                                                    {item.type === 'Carte' && (
+                                                        <>
+                                                            {item.cardNumber && ` • N°${item.cardNumber}`}
+                                                            {item.language && ` • ${item.language}`}
+                                                            {item.condition && ` • ${item.condition}`}
+                                                            {item.cardFinish && item.cardFinish !== 'Standard' && ` • ${item.cardFinish}`}
+                                                        </>
+                                                    )}
+                                                </span>
                                             </div>
                                         </div>
                                         <button
