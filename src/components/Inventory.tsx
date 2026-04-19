@@ -576,7 +576,7 @@ const Inventory: React.FC = () => {
                                                                 item.condition === 'Good' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
                                                                 item.condition === 'Light Played' ? 'bg-orange-100 text-orange-700 border-orange-200' :
                                                                 item.condition === 'Played' ? 'bg-red-100 text-red-600 border-red-200' :
-                                                                item.condition === 'Poor' ? 'bg-rose-100 text-rose-700 border-rose-200' :
+                                                                item.condition === 'Poor' ? 'bg-slate-600 text-white border-slate-700 shadow-sm' :
                                                                 'bg-stone-100 text-stone-600 border-stone-200'
                                                             }`}>
                                                                 {item.condition}
