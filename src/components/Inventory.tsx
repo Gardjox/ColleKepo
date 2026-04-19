@@ -14,7 +14,9 @@ import {
     ArrowUp,
     ArrowDown,
     X,
-    Maximize2
+    Maximize2,
+    LayoutGrid,
+    List
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -33,6 +35,14 @@ const Inventory: React.FC = () => {
     const [activeStatus, setActiveStatus] = useState<'Tous' | 'En Stock' | 'Vendu'>('Tous');
     const [sortBy, setSortBy] = useState<SortOption>('created_at');
     const [showFilters, setShowFilters] = useState(false);
+    
+    const [viewMode, setViewMode] = useState<'list' | 'gallery'>(() => {
+        return (localStorage.getItem('inventoryViewMode') as 'list' | 'gallery') || 'list';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('inventoryViewMode', viewMode);
+    }, [viewMode]);
     
     // Nouveaux filtres Spécial Cartes
     const [filterLanguage, setFilterLanguage] = useState<string>('Tous');
@@ -316,6 +326,22 @@ const Inventory: React.FC = () => {
                     </div>
 
                     <div className="flex gap-2 w-full md:w-auto">
+                        <div className="flex items-center bg-slate-50 border border-slate-100 p-1 rounded-xl mr-2">
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={cn("p-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-600", viewMode === 'list' && "bg-white shadow-sm text-teal-600")}
+                                title="Vue Liste"
+                            >
+                                <List className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('gallery')}
+                                className={cn("p-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-600", viewMode === 'gallery' && "bg-white shadow-sm text-teal-600")}
+                                title="Vue Galerie"
+                            >
+                                <LayoutGrid className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
                         <button
                             onClick={() => setShowFilters(!showFilters)}
                             className={cn(
@@ -490,7 +516,7 @@ const Inventory: React.FC = () => {
                                 </button>
                             )}
                         </div>
-                    ) : (
+                    ) : viewMode === 'list' ? (
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
@@ -651,6 +677,139 @@ const Inventory: React.FC = () => {
                                 ))}
                             </tbody>
                         </table>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 p-4 sm:p-6 bg-slate-50/30">
+                            {filteredItems.map((item) => (
+                                <div key={item.id} className="group relative flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                                    <div 
+                                        className="relative w-full aspect-[3/4] bg-slate-50 cursor-pointer overflow-hidden border-b border-slate-100 flex items-center justify-center p-2"
+                                        onClick={() => setZoomItem(item)}
+                                    >
+                                        {item.photoUrl ? (
+                                            <img
+                                                src={item.photoUrl}
+                                                alt={item.name}
+                                                className="w-full h-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
+                                                <ImageIcon className="w-8 h-8 mb-2 opacity-30" />
+                                                <span className="text-[10px] font-bold uppercase">Sans image</span>
+                                            </div>
+                                        )}
+                                        {item.isSold && (
+                                            <div className="absolute top-2 right-2 px-2 py-1 bg-white/90 backdrop-blur text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-slate-100 shadow-sm">
+                                                Vendu
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="p-3 sm:p-4 flex-1 flex flex-col">
+                                        <div className="mb-2">
+                                            <h3 className="font-black text-slate-800 text-sm leading-tight line-clamp-2 mb-1 cursor-pointer hover:text-teal-600 transition-colors" onClick={() => handleOpenModal(item)}>
+                                                {item.name}
+                                            </h3>
+                                            {(item.series || item.cardNumber) && (
+                                                <p className="text-[10px] font-bold text-slate-400 truncate">
+                                                    {(() => {
+                                                        const series = POKEMON_SERIES.find(s => s.id === item.series);
+                                                        const set = series?.sets.find(s => s.id === item.subSeries);
+                                                        const setName = set ? (isMobile ? set.shortName : set.name) : item.subSeries;
+                                                        if (setName && item.cardNumber) return `${setName} • N°${item.cardNumber}`;
+                                                        if (setName) return setName;
+                                                        if (item.cardNumber) return `N°${item.cardNumber}`;
+                                                        return '';
+                                                    })()}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                                            {item.language && (
+                                                <span className="text-[10px] sm:text-xs" title={`Langue: ${item.language}`}>
+                                                    {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
+                                                </span>
+                                            )}
+                                            {item.condition && (
+                                                <span className={`px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest border ${
+                                                    item.condition === 'Mint' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                    item.condition === 'Near Mint' ? 'bg-sky-100 text-sky-700 border-sky-200' :
+                                                    item.condition === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                                    item.condition === 'Good' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                                    item.condition === 'Light Played' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                                    item.condition === 'Played' ? 'bg-red-100 text-red-600 border-red-200' :
+                                                    item.condition === 'Poor' ? 'bg-slate-600 text-white border-slate-700 shadow-sm' :
+                                                    'bg-stone-100 text-stone-600 border-stone-200'
+                                                }`}>
+                                                    {item.condition}
+                                                </span>
+                                            )}
+                                            {item.cardFinish && item.cardFinish !== 'Standard' && (
+                                                <span className={`px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest ${
+                                                    item.cardFinish === 'Reverse' 
+                                                        ? 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 border border-amber-300' 
+                                                        : 'bg-gradient-to-r from-fuchsia-300 to-purple-500 text-white border border-purple-400'
+                                                }`}>
+                                                    {item.cardFinish === 'Reverse' ? '✨' : '🌟'}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="mt-auto flex items-end justify-between pt-2 border-t border-slate-50">
+                                            <div>
+                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Achat</p>
+                                                <p className="font-black text-slate-700 text-sm">{item.purchasePrice}€</p>
+                                            </div>
+                                            {item.isSold && item.soldPrice ? (
+                                                <div className="text-right">
+                                                    <p className="text-[9px] font-bold text-teal-500 uppercase tracking-widest mb-0.5">Vendu</p>
+                                                    <p className="font-black text-teal-600 text-sm">{item.soldPrice}€</p>
+                                                </div>
+                                            ) : item.potentialResalePrice && item.potentialResalePrice > 0 ? (
+                                                <div className="text-right">
+                                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Côte</p>
+                                                    <p className="font-black text-slate-500 text-sm">{item.potentialResalePrice}€</p>
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons Overlay (Desktop only) */}
+                                    <div className="absolute top-2 left-2 opacity-0 lg:group-hover:opacity-100 transition-opacity hidden lg:flex flex-col gap-1">
+                                        <button onClick={(e) => { e.stopPropagation(); handleOpenModal(item); }} className="p-2 bg-white/90 backdrop-blur hover:bg-white text-slate-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Modifier">
+                                            <Edit2 className="w-3.5 h-3.5" />
+                                        </button>
+                                        {!item.isSold && (
+                                            <button onClick={(e) => { e.stopPropagation(); handleMarkAsSold(item.id); }} className="p-2 bg-white/90 backdrop-blur hover:bg-white text-teal-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Marquer comme vendu">
+                                                <DollarSign className="w-3.5 h-3.5" />
+                                            </button>
+                                        )}
+                                        <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="p-2 bg-white/90 backdrop-blur hover:bg-red-50 text-red-500 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Supprimer">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                    
+                                    {/* Action Buttons Bottom (Mobile only) */}
+                                    <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 bg-slate-50 lg:hidden">
+                                        <button onClick={() => handleOpenModal(item)} className="p-2 text-slate-500 hover:text-slate-800 flex justify-center transition-colors">
+                                            <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        {!item.isSold ? (
+                                            <button onClick={() => handleMarkAsSold(item.id)} className="p-2 text-teal-600 hover:text-teal-800 flex justify-center transition-colors">
+                                                <DollarSign className="w-4 h-4" />
+                                            </button>
+                                        ) : (
+                                            <div className="p-2 flex justify-center text-slate-300">
+                                                <DollarSign className="w-4 h-4" />
+                                            </div>
+                                        )}
+                                        <button onClick={() => handleDelete(item.id)} className="p-2 text-slate-400 hover:text-red-600 flex justify-center transition-colors">
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
