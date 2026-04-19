@@ -25,6 +25,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
         purchaseLocation: '',
         purchaseDate: new Date().toISOString().split('T')[0],
         details: '',
+        language: 'FR',
     });
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
@@ -47,6 +48,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                 purchaseLocation: initialData.purchaseLocation || '',
                 purchaseDate: initialData.purchaseDate || new Date().toISOString().split('T')[0],
                 details: initialData.details || '',
+                language: initialData.language || 'FR',
             });
             setPreviewUrl(initialData.photoUrl || null);
         } else {
@@ -60,6 +62,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                 purchaseLocation: '',
                 purchaseDate: new Date().toISOString().split('T')[0],
                 details: '',
+                language: 'FR',
             });
             setPreviewUrl(null);
         }
@@ -190,6 +193,33 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                         </div>
                                     </div>
                                 )}
+                                
+                                <div className="w-full sm:col-span-2">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Langue de la carte</label>
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, language: 'FR' })}
+                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'FR' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            🇫🇷 FR
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, language: 'JAP' })}
+                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'JAP' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            🇯🇵 JAP
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, language: 'EN' })}
+                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'EN' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            🇺🇸 EN
+                                        </button>
+                                    </div>
+                                </div>
                             </>
                         )}
 
