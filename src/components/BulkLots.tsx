@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera } from 'lucide-react';
+import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera, Edit2, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { POKEMON_SERIES } from '../data/pokemonSets';
 
@@ -19,10 +19,11 @@ const BulkLots: React.FC = () => {
     const [lotName, setLotName] = useState<string>('');
     const [lotPrice, setLotPrice] = useState<number>(0);
     const [isSaving, setIsSaving] = useState(false);
+    const [editingLotId, setEditingLotId] = useState<string | null>(null);
 
     // Nouvel état pour la composition du lot
     const [composedItems, setComposedItems] = useState<{ 
-        name: string, type: string, quantity: number, photo: File | null, previewUrl?: string,
+        id?: string, name: string, type: string, quantity: number, photo: File | null, previewUrl?: string,
         series?: string, subSeries?: string, language?: string, condition?: string, cardFinish?: string, cardNumber?: string 
     }[]>([]);
     const [newItemName, setNewItemName] = useState('');
@@ -100,6 +101,45 @@ const BulkLots: React.FC = () => {
         setComposedItems(composedItems.filter((_, i) => i !== index));
     };
 
+    const handleEditLot = async (lot: Lot) => {
+        setLoading(true);
+        try {
+            setEditingLotId(lot.id);
+            setLotName(lot.name);
+            setLotPrice(lot.purchase_price);
+
+            const { data: dbItems, error } = await supabase
+                .from('items')
+                .select('*')
+                .eq('lot_id', lot.id);
+
+            if (error) throw error;
+
+            if (dbItems) {
+                const mappedItems = dbItems.map((dbItem: any) => ({
+                    id: dbItem.id,
+                    name: dbItem.name,
+                    type: dbItem.type,
+                    quantity: 1,
+                    photo: null, 
+                    previewUrl: dbItem.photo_url || undefined,
+                    series: dbItem.series || undefined,
+                    subSeries: dbItem.sub_series || undefined,
+                    language: dbItem.language || undefined,
+                    condition: dbItem.condition || undefined,
+                    cardFinish: dbItem.card_finish || undefined,
+                    cardNumber: dbItem.card_number || undefined,
+                }));
+                setComposedItems(mappedItems);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error: any) {
+            alert("Erreur lors du chargement des articles : " + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSaveLot = async () => {
         if (!lotName || lotPrice <= 0 || composedItems.length === 0) {
             alert('Veuillez remplir le nom, le prix et ajouter au moins un article au lot.');
@@ -111,26 +151,61 @@ const BulkLots: React.FC = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            // 1. Créer le lot
-            const { data: lotData, error: lotError } = await supabase
-                .from('lots')
-                .insert([{
-                    user_id: user.id,
-                    name: lotName,
-                    purchase_price: lotPrice,
-                    item_count: itemCount,
-                    break_even_price: parseFloat(breakEven)
-                }])
-                .select()
-                .single();
+            let currentLotId = editingLotId;
+            let currentBreakEven = parseFloat(breakEven);
 
-            if (lotError) throw lotError;
+            if (editingLotId) {
+                const { error: lotError } = await supabase
+                    .from('lots')
+                    .update({
+                        name: lotName,
+                        purchase_price: lotPrice,
+                        item_count: itemCount,
+                        break_even_price: currentBreakEven
+                    })
+                    .eq('id', editingLotId);
 
-            // 2. Préparer les articles et uploader les photos si nécessaire
+                if (lotError) throw lotError;
+
+                const { data: originalItems, error: fetchError } = await supabase
+                    .from('items')
+                    .select('id')
+                    .eq('lot_id', editingLotId);
+
+                if (fetchError) throw fetchError;
+
+                const composedIds = composedItems.map(i => i.id).filter(id => id);
+                const originalIds = originalItems.map((i: any) => i.id);
+                const idsToDelete = originalIds.filter((id: string) => !composedIds.includes(id));
+
+                if (idsToDelete.length > 0) {
+                    const { error: deleteError } = await supabase
+                        .from('items')
+                        .delete()
+                        .in('id', idsToDelete);
+                    if (deleteError) throw deleteError;
+                }
+            } else {
+                const { data: lotData, error: lotError } = await supabase
+                    .from('lots')
+                    .insert([{
+                        user_id: user.id,
+                        name: lotName,
+                        purchase_price: lotPrice,
+                        item_count: itemCount,
+                        break_even_price: currentBreakEven
+                    }])
+                    .select()
+                    .single();
+
+                if (lotError) throw lotError;
+                currentLotId = lotData.id;
+            }
+
             const itemsToInsert: any[] = [];
 
             for (const item of composedItems) {
-                let photoUrl = '';
+                let photoUrl = item.previewUrl || '';
 
                 if (item.photo) {
                     const fileExt = item.photo.name.split('.').pop();
@@ -149,42 +224,62 @@ const BulkLots: React.FC = () => {
                     }
                 }
 
-                for (let i = 0; i < item.quantity; i++) {
-                    itemsToInsert.push({
-                        user_id: user.id,
-                        lot_id: lotData.id,
-                        name: item.quantity > 1 ? `${item.name} (${i + 1}/${item.quantity})` : item.name,
-                        type: item.type,
-                        series: item.series || null,
-                        sub_series: item.subSeries || null,
-                        language: item.language || null,
-                        condition: item.condition || null,
-                        card_finish: item.cardFinish || null,
-                        card_number: item.cardNumber || null,
-                        purchase_price: parseFloat(breakEven),
-                        potential_resale_price: 0,
-                        purchase_location: lotName,
-                        photo_url: photoUrl,
-                        is_sold: false
-                    });
+                if (item.id) {
+                    const { error: updateError } = await supabase
+                        .from('items')
+                        .update({
+                            name: item.name,
+                            type: item.type,
+                            series: item.series || null,
+                            sub_series: item.subSeries || null,
+                            language: item.language || null,
+                            condition: item.condition || null,
+                            card_finish: item.cardFinish || null,
+                            card_number: item.cardNumber || null,
+                            purchase_price: currentBreakEven,
+                            purchase_location: lotName,
+                            photo_url: photoUrl
+                        })
+                        .eq('id', item.id);
+                        
+                    if (updateError) throw updateError;
+                } else {
+                    for (let i = 0; i < item.quantity; i++) {
+                        itemsToInsert.push({
+                            user_id: user.id,
+                            lot_id: currentLotId,
+                            name: item.quantity > 1 ? `${item.name} (${i + 1}/${item.quantity})` : item.name,
+                            type: item.type,
+                            series: item.series || null,
+                            sub_series: item.subSeries || null,
+                            language: item.language || null,
+                            condition: item.condition || null,
+                            card_finish: item.cardFinish || null,
+                            card_number: item.cardNumber || null,
+                            purchase_price: currentBreakEven,
+                            potential_resale_price: 0,
+                            purchase_location: lotName,
+                            photo_url: photoUrl,
+                            is_sold: false
+                        });
+                    }
                 }
             }
 
-            const { error: itemsError } = await supabase
-                .from('items')
-                .insert(itemsToInsert);
-
-            if (itemsError) {
-                console.warn("Le lot a été créé mais certains articles n'ont pas pu être insérés. Vérifiez si la colonne 'lot_id' existe dans votre table 'items'.");
-                throw itemsError;
+            if (itemsToInsert.length > 0) {
+                const { error: itemsError } = await supabase
+                    .from('items')
+                    .insert(itemsToInsert);
+                if (itemsError) throw itemsError;
             }
 
             // Success
             setLotName('');
             setLotPrice(0);
             setComposedItems([]);
+            setEditingLotId(null);
             fetchLots();
-            alert(`Lot et ${itemCount} articles enregistrés avec succès ! Retrouvez-les dans votre inventaire.`);
+            alert(editingLotId ? 'Lot mis à jour avec succès !' : `Lot et ${itemCount} articles enregistrés avec succès !`);
         } catch (error: any) {
             alert('Erreur lors de la sauvegarde : ' + error.message);
         } finally {
@@ -446,13 +541,28 @@ const BulkLots: React.FC = () => {
                                 <p className="text-teal-100 font-medium italic">Vendre au-dessus de ce prix pour réaliser un bénéfice sur chaque carte du lot.</p>
                             </div>
 
-                            <button
-                                onClick={handleSaveLot}
-                                disabled={isSaving}
-                                className="w-full mt-6 py-3 bg-white text-teal-700 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-teal-50 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:active:scale-100"
-                            >
-                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Enregistrer ce lot"}
-                            </button>
+                            <div className="flex flex-col gap-2 mt-6">
+                                <button
+                                    onClick={handleSaveLot}
+                                    disabled={isSaving}
+                                    className="w-full py-3 bg-white text-teal-700 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-teal-50 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                                >
+                                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (editingLotId ? "Mettre à jour le lot" : "Enregistrer ce lot")}
+                                </button>
+                                {editingLotId && (
+                                    <button
+                                        onClick={() => {
+                                            setEditingLotId(null);
+                                            setLotName('');
+                                            setLotPrice(0);
+                                            setComposedItems([]);
+                                        }}
+                                        className="w-full py-2 bg-transparent text-teal-200 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:text-white transition-all"
+                                    >
+                                        Annuler la modification
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -512,12 +622,22 @@ const BulkLots: React.FC = () => {
                                                 <p className="text-sm font-bold text-slate-800">{lot.purchase_price.toFixed(2)}€</p>
                                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total</p>
                                             </div>
-                                            <button
-                                                onClick={() => handleDeleteLot(lot.id)}
-                                                className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            <div className="flex gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-all">
+                                                <button
+                                                    onClick={() => handleEditLot(lot)}
+                                                    className="p-1.5 lg:p-2 text-slate-300 hover:text-teal-500 hover:bg-teal-50 rounded-lg transition-all"
+                                                    title="Modifier"
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteLot(lot.id)}
+                                                    className="p-1.5 lg:p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                    title="Supprimer"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
