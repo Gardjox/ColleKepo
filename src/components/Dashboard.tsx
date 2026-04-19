@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, TrendingUp, AlertCircle, CheckCircle2, Loader2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Package, TrendingUp, AlertCircle, CheckCircle2, Loader2, ArrowUpRight, ArrowDownRight, ShoppingBag, Banknote } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface DashboardStats {
@@ -7,6 +7,8 @@ interface DashboardStats {
     realProfit: number;
     potentialProfit: number;
     soldCount: number;
+    totalPurchasePrice: number;
+    totalResalePrice: number;
     recentActivities: any[];
 }
 
@@ -16,6 +18,8 @@ const Dashboard: React.FC = () => {
         realProfit: 0,
         potentialProfit: 0,
         soldCount: 0,
+        totalPurchasePrice: 0,
+        totalResalePrice: 0,
         recentActivities: []
     });
     const [loading, setLoading] = useState(true);
@@ -35,13 +39,22 @@ const Dashboard: React.FC = () => {
             let realProfit = 0;
             let potentialProfit = 0;
             let soldCount = 0;
+            let totalPurchasePrice = 0;
+            let totalResalePrice = 0;
 
             (items || []).forEach((item: any) => {
+                const purchase = item.purchase_price || 0;
+                totalPurchasePrice += purchase;
+                
                 if (item.is_sold) {
                     soldCount++;
-                    realProfit += (item.sold_price || 0) - (item.purchase_price || 0);
+                    const sold = item.sold_price || 0;
+                    realProfit += sold - purchase;
+                    totalResalePrice += sold;
                 } else {
-                    potentialProfit += (item.potential_resale_price || 0) - (item.purchase_price || 0);
+                    const potential = item.potential_resale_price || 0;
+                    potentialProfit += potential - purchase;
+                    totalResalePrice += potential;
                 }
             });
 
@@ -50,6 +63,8 @@ const Dashboard: React.FC = () => {
                 realProfit,
                 potentialProfit,
                 soldCount,
+                totalPurchasePrice,
+                totalResalePrice,
                 recentActivities: (items || []).slice(0, 3)
             });
         } catch (error: any) {
@@ -100,6 +115,24 @@ const Dashboard: React.FC = () => {
             bg: 'bg-purple-50',
             description: 'Cycle terminé'
         },
+        {
+            title: 'Prix d\'Achat Total',
+            value: stats.totalPurchasePrice.toFixed(2),
+            unit: '€',
+            icon: ShoppingBag,
+            color: 'text-indigo-600',
+            bg: 'bg-indigo-50',
+            description: 'Investissement'
+        },
+        {
+            title: 'Valeur Totale (Revente)',
+            value: stats.totalResalePrice.toFixed(2),
+            unit: '€',
+            icon: Banknote,
+            color: 'text-teal-600',
+            bg: 'bg-teal-50',
+            description: 'Est. + Ventes'
+        },
     ];
 
     if (loading) {
@@ -114,7 +147,7 @@ const Dashboard: React.FC = () => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {statCards.map((stat, index) => (
                     <div key={index} className="premium-card p-4 sm:p-6 flex items-start justify-between group hover:border-teal-100 transition-all hover:shadow-xl hover:shadow-slate-200/50">
                         <div>

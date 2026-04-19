@@ -33,6 +33,11 @@ const Inventory: React.FC = () => {
     const [activeStatus, setActiveStatus] = useState<'Tous' | 'En Stock' | 'Vendu'>('Tous');
     const [sortBy, setSortBy] = useState<SortOption>('created_at');
     const [showFilters, setShowFilters] = useState(false);
+    
+    // Nouveaux filtres Spécial Cartes
+    const [filterLanguage, setFilterLanguage] = useState<string>('Tous');
+    const [filterCondition, setFilterCondition] = useState<string>('Tous');
+    const [filterFinish, setFilterFinish] = useState<string>('Tous');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
@@ -208,8 +213,12 @@ const Inventory: React.FC = () => {
             const matchesStatus = activeStatus === 'Tous' ||
                 (activeStatus === 'En Stock' && !item.isSold) ||
                 (activeStatus === 'Vendu' && item.isSold);
+                
+            const matchesLanguage = filterLanguage === 'Tous' || item.language === filterLanguage;
+            const matchesCondition = filterCondition === 'Tous' || item.condition === filterCondition;
+            const matchesFinish = filterFinish === 'Tous' || item.cardFinish === filterFinish;
 
-            return matchesSearch && matchesType && matchesStatus;
+            return matchesSearch && matchesType && matchesStatus && matchesLanguage && matchesCondition && matchesFinish;
         })
         .sort((a, b) => {
             if (sortBy === 'created_at') return b.createdAt - a.createdAt;
@@ -311,13 +320,13 @@ const Inventory: React.FC = () => {
                             onClick={() => setShowFilters(!showFilters)}
                             className={cn(
                                 "flex items-center gap-2 px-4 py-2 border rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all",
-                                showFilters || activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at'
+                                showFilters || activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous'
                                     ? "bg-teal-50 border-teal-200 text-teal-600 shadow-sm shadow-teal-50"
                                     : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                             )}
                         >
                             <Filter className="w-4 h-4" />
-                            {activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at' ? 'Filtres actifs' : 'Filtres'}
+                            {activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous' ? 'Filtres actifs' : 'Filtres'}
                             <ChevronDown className={cn("w-3 h-3 transition-transform", showFilters && "rotate-180")} />
                         </button>
                         <button
@@ -333,7 +342,7 @@ const Inventory: React.FC = () => {
                 {/* Filter Panel */}
                 {showFilters && (
                     <div className="premium-card p-6 animate-in fade-in slide-in-from-top-2 duration-200 bg-white/90 backdrop-blur-md border-teal-100/50 shadow-xl shadow-slate-200/50">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {/* Category Filter */}
                             <div>
                                 <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center justify-between">
@@ -350,7 +359,7 @@ const Inventory: React.FC = () => {
                                             key={type}
                                             onClick={() => setActiveType(type)}
                                             className={cn(
-                                                "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border",
+                                                "px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border",
                                                 activeType === type
                                                     ? "bg-teal-600 border-teal-600 text-white shadow-md shadow-teal-100"
                                                     : "bg-white border-slate-100 text-slate-500 hover:border-teal-200 hover:text-teal-600"
@@ -378,7 +387,7 @@ const Inventory: React.FC = () => {
                                             key={status}
                                             onClick={() => setActiveStatus(status)}
                                             className={cn(
-                                                "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border",
+                                                "px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border",
                                                 activeStatus === status
                                                     ? "bg-slate-800 border-slate-800 text-white shadow-md shadow-slate-200"
                                                     : "bg-white border-slate-100 text-slate-500 hover:border-slate-300 hover:text-slate-800"
@@ -389,9 +398,46 @@ const Inventory: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
+                            
+                            {/* Spécial Cartes */}
+                            {activeType === 'Carte' || activeType === 'Tous' ? (
+                                <div className="flex flex-col gap-3">
+                                    <h5 className="text-[10px] font-black text-teal-400 uppercase tracking-widest mb-1 flex items-center justify-between">
+                                        Filtres Cartes
+                                        {(filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous') && (
+                                            <button onClick={() => { setFilterLanguage('Tous'); setFilterCondition('Tous'); setFilterFinish('Tous'); }} className="text-teal-500 hover:text-teal-600 text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                                                Reset <X className="w-3 h-3" />
+                                            </button>
+                                        )}
+                                    </h5>
+                                    
+                                    <select value={filterLanguage} onChange={(e) => setFilterLanguage(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all">
+                                        <option value="Tous">Langue: Toutes</option>
+                                        <option value="FR">🇫🇷 FR</option>
+                                        <option value="JAP">🇯🇵 JAP</option>
+                                        <option value="EN">🇺🇸 EN</option>
+                                    </select>
+                                    <select value={filterCondition} onChange={(e) => setFilterCondition(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all">
+                                        <option value="Tous">État: Tous</option>
+                                        <option value="Mint">Mint (M)</option>
+                                        <option value="Near Mint">Near Mint (NM)</option>
+                                        <option value="Excellent">Excellent (EX)</option>
+                                        <option value="Good">Good (GD)</option>
+                                        <option value="Light Played">Light Played (LP)</option>
+                                        <option value="Played">Played (PL)</option>
+                                        <option value="Poor">Poor (PR)</option>
+                                    </select>
+                                    <select value={filterFinish} onChange={(e) => setFilterFinish(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all">
+                                        <option value="Tous">Finition: Toutes</option>
+                                        <option value="Standard">Standard</option>
+                                        <option value="Reverse">✨ Reverse</option>
+                                        <option value="Holo">🌟 Holo</option>
+                                    </select>
+                                </div>
+                            ) : <div></div>}
 
                             {/* Sort Filter */}
-                            <div>
+                            <div className="flex flex-col">
                                 <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center justify-between">
                                     Trier par date / prix
                                     <ArrowUpDown className="w-3 h-3 text-slate-300" />
@@ -428,16 +474,16 @@ const Inventory: React.FC = () => {
                     ) : filteredItems.length === 0 ? (
                         <div className="flex flex-col items-center justify-center p-20 text-slate-400">
                             <div className="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center mb-4 border border-slate-100 shadow-inner">
-                                {searchTerm || activeType !== 'Tous' || activeStatus !== 'Tous' ? <Filter className="w-6 h-6 text-slate-300" /> : <Plus className="w-6 h-6 text-slate-300" />}
+                                {searchTerm || activeType !== 'Tous' || activeStatus !== 'Tous' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous' ? <Filter className="w-6 h-6 text-slate-300" /> : <Plus className="w-6 h-6 text-slate-300" />}
                             </div>
                             <p className="text-sm font-bold uppercase tracking-widest opacity-60">
-                                {searchTerm || activeType !== 'Tous' || activeStatus !== 'Tous'
+                                {searchTerm || activeType !== 'Tous' || activeStatus !== 'Tous' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous'
                                     ? "Aucun résultat pour ces filtres"
                                     : "Votre collection est vide"}
                             </p>
-                            {(searchTerm || activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at') && (
+                            {(searchTerm || activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous') && (
                                 <button
-                                    onClick={() => { setSearchTerm(''); setActiveType('Tous'); setActiveStatus('Tous'); setSortBy('created_at'); }}
+                                    onClick={() => { setSearchTerm(''); setActiveType('Tous'); setActiveStatus('Tous'); setSortBy('created_at'); setFilterLanguage('Tous'); setFilterCondition('Tous'); setFilterFinish('Tous'); }}
                                     className="mt-4 text-[10px] font-black uppercase tracking-widest text-teal-600 hover:underline"
                                 >
                                     Effacer tout
