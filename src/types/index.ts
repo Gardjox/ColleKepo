@@ -17,6 +17,7 @@ export interface InventoryItem {
     subSeries?: string;
     language?: string;
     condition?: string;
+    cardFinish?: string;
     createdAt: number;
 }
 

@@ -72,6 +72,7 @@ const Inventory: React.FC = () => {
                 subSeries: dbItem.sub_series,
                 language: dbItem.language,
                 condition: dbItem.condition,
+                cardFinish: dbItem.card_finish,
                 lotId: dbItem.lot_id,
                 createdAt: new Date(dbItem.created_at).getTime()
             }));
@@ -130,6 +131,7 @@ const Inventory: React.FC = () => {
                 sub_series: newItem.subSeries || null,
                 language: newItem.language || null,
                 condition: newItem.condition || null,
+                card_finish: newItem.cardFinish || null,
                 purchase_price: parseFloat(newItem.purchasePrice) || 0,
                 potential_resale_price: parseFloat(newItem.potentialResalePrice) || 0,
                 purchase_location: newItem.purchaseLocation,
@@ -516,6 +518,15 @@ const Inventory: React.FC = () => {
                                                         {item.type === 'Carte' && item.condition && (
                                                             <span className="px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-600 text-[7px] sm:text-[8px] font-black uppercase tracking-widest border border-stone-200">
                                                                 {item.condition}
+                                                            </span>
+                                                        )}
+                                                        {item.type === 'Carte' && item.cardFinish && item.cardFinish !== 'Standard' && (
+                                                            <span className={`px-1.5 py-0.5 rounded-md text-[7px] sm:text-[8px] font-black uppercase tracking-widest ${
+                                                                item.cardFinish === 'Reverse' 
+                                                                    ? 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 shadow-sm border border-amber-300' 
+                                                                    : 'bg-gradient-to-r from-fuchsia-300 to-purple-500 text-white shadow-sm border border-purple-400'
+                                                            }`}>
+                                                                {item.cardFinish === 'Reverse' ? '✨ Reverse' : '🌟 Holo'}
                                                             </span>
                                                         )}
                                                         {item.purchaseLocation && (

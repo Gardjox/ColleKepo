@@ -27,6 +27,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
         details: '',
         language: 'FR',
         condition: 'Mint',
+        cardFinish: 'Standard',
     });
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
@@ -51,6 +52,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                 details: initialData.details || '',
                 language: initialData.language || 'FR',
                 condition: initialData.condition || 'Mint',
+                cardFinish: initialData.cardFinish || 'Standard',
             });
             setPreviewUrl(initialData.photoUrl || null);
         } else {
@@ -66,6 +68,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                 details: '',
                 language: 'FR',
                 condition: 'Mint',
+                cardFinish: 'Standard',
             });
             setPreviewUrl(null);
         }
@@ -241,6 +244,33 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                             <option value="Poor">Poor (PR)</option>
                                         </select>
                                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                                    </div>
+                                </div>
+                                
+                                <div className="w-full sm:col-span-2">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Finition de la carte</label>
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, cardFinish: 'Standard' })}
+                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.cardFinish === 'Standard' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            Standard
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, cardFinish: 'Reverse' })}
+                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.cardFinish === 'Reverse' ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            ✨ Reverse
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, cardFinish: 'Holo' })}
+                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.cardFinish === 'Holo' ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            🌟 Holo
+                                        </button>
                                     </div>
                                 </div>
                             </>
