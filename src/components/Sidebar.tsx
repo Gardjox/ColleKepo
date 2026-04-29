@@ -23,7 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { id: 'inventory', label: 'Inventaire', icon: Package },
         { id: 'lots', label: 'Achats de Lots', icon: Layers },
-        { id: 'profit', label: 'Rentabilité', icon: TrendingUp },
+        { id: 'perso', label: 'Collection Perso', icon: TrendingUp },
     ];
 
     return (

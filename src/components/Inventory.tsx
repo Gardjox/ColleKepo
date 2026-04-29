@@ -27,7 +27,11 @@ import AddItemModal from './AddItemModal';
 
 type SortOption = 'created_at' | 'purchase_newest' | 'purchase_oldest' | 'sold_newest' | 'sold_oldest' | 'price_high' | 'price_low';
 
-const Inventory: React.FC = () => {
+interface InventoryProps {
+    isPersonal?: boolean;
+}
+
+const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
     const [items, setItems] = useState<InventoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -66,6 +70,7 @@ const Inventory: React.FC = () => {
             const { data, error } = await supabase
                 .from('items')
                 .select('*')
+                .eq('is_personal', isPersonal)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -156,6 +161,7 @@ const Inventory: React.FC = () => {
                 details: newItem.details,
                 photo_url: photoUrl,
                 user_id: user.id,
+                is_personal: isPersonal
             };
 
             if (editingItem) {
@@ -563,15 +569,15 @@ const Inventory: React.FC = () => {
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight mb-1 truncate max-w-[100px] sm:max-w-none">
+                                                    <p className="text-sm sm:text-base font-black text-slate-800 leading-tight mb-1 truncate max-w-[100px] sm:max-w-none">
                                                         {item.name} 
                                                         {item.type === 'Carte' && item.cardNumber && (
-                                                            <span className="text-slate-400 font-bold ml-1.5 text-[10px] sm:text-xs">N°{item.cardNumber}</span>
+                                                            <span className="text-slate-400 font-bold ml-1.5 text-xs sm:text-sm">N°{item.cardNumber}</span>
                                                         )}
                                                     </p>
                                                     <div className="flex flex-wrap items-center gap-1.5">
                                                         <span className={cn(
-                                                            "px-1.5 py-0.5 rounded-md text-[7px] sm:text-[8px] font-black uppercase tracking-widest",
+                                                            "px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest",
                                                             item.type === 'Carte' && "bg-blue-50 text-blue-600",
                                                             item.type === 'Scellé' && "bg-purple-50 text-purple-600",
                                                             item.type === 'Carte Gradée' && "bg-amber-50 text-amber-600",
@@ -580,7 +586,7 @@ const Inventory: React.FC = () => {
                                                             {item.type}
                                                         </span>
                                                         {item.type === 'Carte' && item.subSeries && (
-                                                            <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[7px] sm:text-[8px] font-black uppercase tracking-widest">
+                                                            <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">
                                                                 {(() => {
                                                                     const series = POKEMON_SERIES.find(s => s.id === item.series);
                                                                     const set = series?.sets.find(s => s.id === item.subSeries);
@@ -590,12 +596,12 @@ const Inventory: React.FC = () => {
                                                             </span>
                                                         )}
                                                         {item.type === 'Carte' && item.language && (
-                                                            <span className="text-[10px] sm:text-xs" title={`Langue: ${item.language}`}>
+                                                            <span className="text-[11px] sm:text-sm" title={`Langue: ${item.language}`}>
                                                                 {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
                                                             </span>
                                                         )}
                                                         {item.type === 'Carte' && item.condition && (
-                                                            <span className={`px-1.5 py-0.5 rounded-md text-[7px] sm:text-[8px] font-black uppercase tracking-widest border ${
+                                                            <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest border ${
                                                                 item.condition === 'Mint' ? 'bg-blue-100 text-blue-700 border-blue-200' :
                                                                 item.condition === 'Near Mint' ? 'bg-sky-100 text-sky-700 border-sky-200' :
                                                                 item.condition === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
@@ -609,16 +615,16 @@ const Inventory: React.FC = () => {
                                                             </span>
                                                         )}
                                                         {item.type === 'Carte' && item.cardFinish && item.cardFinish !== 'Standard' && (
-                                                            <span className={`px-1.5 py-0.5 rounded-md text-[7px] sm:text-[8px] font-black uppercase tracking-widest ${
+                                                            <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest ${
                                                                 item.cardFinish === 'Reverse' 
                                                                     ? 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 shadow-sm border border-amber-300' 
                                                                     : 'bg-gradient-to-r from-fuchsia-300 to-purple-500 text-white shadow-sm border border-purple-400'
                                                             }`}>
-                                                                {item.cardFinish === 'Reverse' ? '✨ Reverse' : '🌟 Holo'}
+                                                                {item.cardFinish === 'Reverse' ? '✨' : '🌟'}
                                                             </span>
                                                         )}
                                                         {item.purchaseLocation && (
-                                                            <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest truncate max-w-[60px] sm:max-w-[80px]">{item.purchaseLocation}</span>
+                                                            <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate max-w-[60px] sm:max-w-[80px]">{item.purchaseLocation}</span>
                                                         )}
                                                     </div>
                                                 </div>
@@ -706,11 +712,11 @@ const Inventory: React.FC = () => {
 
                                     <div className="p-3 sm:p-4 flex-1 flex flex-col">
                                         <div className="mb-2">
-                                            <h3 className="font-black text-slate-800 text-sm leading-tight line-clamp-2 mb-1 cursor-pointer hover:text-teal-600 transition-colors" onClick={() => handleOpenModal(item)}>
+                                            <h3 className="font-black text-slate-800 text-sm sm:text-base leading-tight line-clamp-2 mb-1 cursor-pointer hover:text-teal-600 transition-colors" onClick={() => handleOpenModal(item)}>
                                                 {item.name}
                                             </h3>
                                             {(item.series || item.cardNumber) && (
-                                                <p className="text-[10px] font-bold text-slate-400 truncate">
+                                                <p className="text-[11px] sm:text-xs font-bold text-slate-400 truncate">
                                                     {(() => {
                                                         const series = POKEMON_SERIES.find(s => s.id === item.series);
                                                         const set = series?.sets.find(s => s.id === item.subSeries);
@@ -726,12 +732,12 @@ const Inventory: React.FC = () => {
 
                                         <div className="flex flex-wrap items-center gap-1.5 mb-3">
                                             {item.language && (
-                                                <span className="text-[10px] sm:text-xs" title={`Langue: ${item.language}`}>
+                                                <span className="text-[11px] sm:text-sm" title={`Langue: ${item.language}`}>
                                                     {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
                                                 </span>
                                             )}
                                             {item.condition && (
-                                                <span className={`px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest border ${
+                                                <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest border ${
                                                     item.condition === 'Mint' ? 'bg-blue-100 text-blue-700 border-blue-200' :
                                                     item.condition === 'Near Mint' ? 'bg-sky-100 text-sky-700 border-sky-200' :
                                                     item.condition === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
@@ -745,7 +751,7 @@ const Inventory: React.FC = () => {
                                                 </span>
                                             )}
                                             {item.cardFinish && item.cardFinish !== 'Standard' && (
-                                                <span className={`px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase tracking-widest ${
+                                                <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest ${
                                                     item.cardFinish === 'Reverse' 
                                                         ? 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 border border-amber-300' 
                                                         : 'bg-gradient-to-r from-fuchsia-300 to-purple-500 text-white border border-purple-400'

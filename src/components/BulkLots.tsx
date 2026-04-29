@@ -353,7 +353,7 @@ const BulkLots: React.FC = () => {
                         <div className="pt-4 mt-4 border-t border-teal-500">
                             <label className="block text-[10px] font-bold uppercase tracking-widest text-teal-100 mb-3 opacity-80">📦 Contenu du lot ({itemCount})</label>
 
-                            <div className="flex gap-2 mb-4 items-end">
+                            <div className="flex flex-col gap-3 mb-4">
                                 <input
                                     type="file"
                                     ref={fileInputRef}
@@ -361,7 +361,7 @@ const BulkLots: React.FC = () => {
                                     accept="image/*"
                                     className="hidden"
                                 />
-                                <div className="flex-1 space-y-2">
+                                <div className="w-full space-y-2">
                                     <div className="flex gap-2">
                                         <div className="flex-[3]">
                                             <input
@@ -468,9 +468,9 @@ const BulkLots: React.FC = () => {
                                 </div>
                                 <button
                                     onClick={addItemToComposition}
-                                    className="p-3 bg-white text-teal-600 rounded-lg hover:bg-teal-50 transition-colors flex items-center justify-center shadow-lg self-stretch"
+                                    className="w-full mt-2 py-3 bg-white text-teal-600 rounded-xl hover:bg-teal-50 transition-colors flex items-center justify-center shadow-lg font-bold text-[11px] uppercase tracking-widest active:scale-95"
                                 >
-                                    <Plus className="w-5 h-5" />
+                                    <Plus className="w-5 h-5 mr-2" /> Ajouter la carte
                                 </button>
                             </div>
 
@@ -622,17 +622,17 @@ const BulkLots: React.FC = () => {
                                                 <p className="text-sm font-bold text-slate-800">{lot.purchase_price.toFixed(2)}€</p>
                                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total</p>
                                             </div>
-                                            <div className="flex gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-all">
+                                            <div className="flex gap-2 opacity-100 transition-all">
                                                 <button
                                                     onClick={() => handleEditLot(lot)}
-                                                    className="p-1.5 lg:p-2 text-slate-300 hover:text-teal-500 hover:bg-teal-50 rounded-lg transition-all"
+                                                    className="flex items-center gap-2 px-3 py-2 text-teal-600 bg-teal-50 hover:bg-teal-100 rounded-lg transition-all text-[11px] font-bold uppercase tracking-widest"
                                                     title="Modifier"
                                                 >
-                                                    <Edit2 className="w-4 h-4" />
+                                                    <Edit2 className="w-4 h-4" /> <span className="hidden sm:inline">Modifier</span>
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteLot(lot.id)}
-                                                    className="p-1.5 lg:p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                    className="p-2 text-red-400 bg-red-50 hover:bg-red-100 rounded-lg transition-all"
                                                     title="Supprimer"
                                                 >
                                                     <Trash2 className="w-4 h-4" />

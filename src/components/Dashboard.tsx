@@ -9,6 +9,8 @@ interface DashboardStats {
     soldCount: number;
     totalPurchasePrice: number;
     totalResalePrice: number;
+    personalPurchasePrice: number;
+    personalResalePrice: number;
     recentActivities: any[];
 }
 
@@ -20,6 +22,8 @@ const Dashboard: React.FC = () => {
         soldCount: 0,
         totalPurchasePrice: 0,
         totalResalePrice: 0,
+        personalPurchasePrice: 0,
+        personalResalePrice: 0,
         recentActivities: []
     });
     const [loading, setLoading] = useState(true);
@@ -42,19 +46,29 @@ const Dashboard: React.FC = () => {
             let totalPurchasePrice = 0;
             let totalResalePrice = 0;
 
+            let personalPurchasePrice = 0;
+            let personalResalePrice = 0;
+
             (items || []).forEach((item: any) => {
                 const purchase = item.purchase_price || 0;
-                totalPurchasePrice += purchase;
                 
-                if (item.is_sold) {
-                    soldCount++;
-                    const sold = item.sold_price || 0;
-                    realProfit += sold - purchase;
-                    totalResalePrice += sold;
-                } else {
+                if (item.is_personal) {
+                    personalPurchasePrice += purchase;
                     const potential = item.potential_resale_price || 0;
-                    potentialProfit += potential - purchase;
-                    totalResalePrice += potential;
+                    personalResalePrice += potential;
+                } else {
+                    totalPurchasePrice += purchase;
+                    
+                    if (item.is_sold) {
+                        soldCount++;
+                        const sold = item.sold_price || 0;
+                        realProfit += sold - purchase;
+                        totalResalePrice += sold;
+                    } else {
+                        const potential = item.potential_resale_price || 0;
+                        potentialProfit += potential - purchase;
+                        totalResalePrice += potential;
+                    }
                 }
             });
 
@@ -65,7 +79,9 @@ const Dashboard: React.FC = () => {
                 soldCount,
                 totalPurchasePrice,
                 totalResalePrice,
-                recentActivities: (items || []).slice(0, 3)
+                personalPurchasePrice,
+                personalResalePrice,
+                recentActivities: (items || []).filter((i: any) => !i.is_personal).slice(0, 3)
             });
         } catch (error: any) {
             console.error('Erreur dashboard:', error.message);
@@ -326,6 +342,35 @@ const Dashboard: React.FC = () => {
                             </div>
                             <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-amber-500 transition-colors" />
                         </a>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Collection Perso Stats */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-6 lg:p-8 border border-indigo-100 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/40 blur-3xl rounded-full -mr-20 -mt-20"></div>
+                
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+                            <Package className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-black text-slate-800 tracking-tight">Données Perso</h2>
+                            <p className="text-[10px] font-bold text-indigo-600/80 uppercase tracking-widest">Ma Collection Privée</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-indigo-100/50">
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Prix d'Achat Total</p>
+                            <p className="text-2xl font-black text-indigo-700">{stats.personalPurchasePrice.toFixed(2)}€</p>
+                        </div>
+                        <div className="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-purple-100/50">
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valeur Actuelle (Cote)</p>
+                            <p className="text-2xl font-black text-purple-700">{stats.personalResalePrice.toFixed(2)}€</p>
+                        </div>
                     </div>
                 </div>
             </div>

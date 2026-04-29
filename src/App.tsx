@@ -104,7 +104,7 @@ function App() {
                 {activeTab === 'dashboard' && "Tableau de Bord"}
                 {activeTab === 'inventory' && "Gestion de Stock"}
                 {activeTab === 'lots' && "Achats en Volume"}
-                {activeTab === 'profit' && "Analyse de Rentabilité"}
+                {activeTab === 'perso' && "Collection Perso"}
               </h2>
               <p className="text-slate-500 text-[10px] sm:text-xs mt-0.5 truncate max-w-[150px] sm:max-w-none">
                 Bienvenue, {session.user.email}
@@ -136,6 +136,7 @@ function App() {
           {activeTab === 'inventory' && <Inventory />}
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'lots' && <BulkLots />}
+          {activeTab === 'perso' && <Inventory isPersonal={true} />}
         </section>
       </main>
     </div>
