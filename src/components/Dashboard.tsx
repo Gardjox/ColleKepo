@@ -343,7 +343,6 @@ const Dashboard: React.FC = () => {
                             <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-amber-500 transition-colors" />
                         </a>
                     </div>
-                    </div>
                 </div>
             </div>
 

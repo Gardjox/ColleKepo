@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera, Edit2, X } from 'lucide-react';
+import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera, Edit2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { POKEMON_SERIES } from '../data/pokemonSets';
 
