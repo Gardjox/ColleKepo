@@ -24,13 +24,14 @@ const BulkLots: React.FC = () => {
     // Nouvel état pour la composition du lot
     const [composedItems, setComposedItems] = useState<{ 
         id?: string, name: string, type: string, quantity: number, photo: File | null, previewUrl?: string,
-        series?: string, subSeries?: string, language?: string, condition?: string, cardFinish?: string, cardNumber?: string 
+        series?: string, subSeries?: string, language?: string, condition?: string, cardFinish?: string, cardNumber?: string, potentialResalePrice?: number 
     }[]>([]);
     const [newItemName, setNewItemName] = useState('');
     const [newItemType, setNewItemType] = useState('Carte');
     const [newItemQty, setNewItemQty] = useState<number>(1);
     const [newItemPhoto, setNewItemPhoto] = useState<File | null>(null);
     const [newItemPreview, setNewItemPreview] = useState<string | null>(null);
+    const [newItemPotentialPrice, setNewItemPotentialPrice] = useState<number>(0);
     
     // Nouveaux états de détails (Carte)
     const [newItemSeries, setNewItemSeries] = useState('');
@@ -81,6 +82,7 @@ const BulkLots: React.FC = () => {
             quantity: newItemQty,
             photo: newItemPhoto,
             previewUrl: newItemPreview || undefined,
+            potentialResalePrice: newItemPotentialPrice,
             series: newItemType === 'Carte' ? newItemSeries : undefined,
             subSeries: newItemType === 'Carte' ? newItemSubSeries : undefined,
             cardNumber: newItemType === 'Carte' ? newItemNumber : undefined,
@@ -92,6 +94,7 @@ const BulkLots: React.FC = () => {
         setNewItemQty(1);
         setNewItemPhoto(null);
         setNewItemPreview(null);
+        setNewItemPotentialPrice(0);
         setNewItemSeries('');
         setNewItemSubSeries('');
         setNewItemNumber('');
@@ -129,6 +132,7 @@ const BulkLots: React.FC = () => {
                     condition: dbItem.condition || undefined,
                     cardFinish: dbItem.card_finish || undefined,
                     cardNumber: dbItem.card_number || undefined,
+                    potentialResalePrice: dbItem.potential_resale_price || 0,
                 }));
                 setComposedItems(mappedItems);
             }
@@ -237,6 +241,7 @@ const BulkLots: React.FC = () => {
                             card_finish: item.cardFinish || null,
                             card_number: item.cardNumber || null,
                             purchase_price: currentBreakEven,
+                            potential_resale_price: item.potentialResalePrice || 0,
                             purchase_location: lotName,
                             photo_url: photoUrl
                         })
@@ -257,7 +262,7 @@ const BulkLots: React.FC = () => {
                             card_finish: item.cardFinish || null,
                             card_number: item.cardNumber || null,
                             purchase_price: currentBreakEven,
-                            potential_resale_price: 0,
+                            potential_resale_price: item.potentialResalePrice || 0,
                             purchase_location: lotName,
                             photo_url: photoUrl,
                             is_sold: false
@@ -384,6 +389,18 @@ const BulkLots: React.FC = () => {
                                                 onKeyDown={(e) => e.key === 'Enter' && addItemToComposition()}
                                             />
                                         </div>
+                                        <div className="w-20">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                className="w-full bg-teal-700/30 border border-teal-400/50 rounded-lg px-2 py-2 text-xs text-white placeholder-teal-300 focus:outline-none"
+                                                placeholder="Cote €"
+                                                value={newItemPotentialPrice || ''}
+                                                onChange={(e) => setNewItemPotentialPrice(Number(e.target.value))}
+                                                onKeyDown={(e) => e.key === 'Enter' && addItemToComposition()}
+                                            />
+                                        </div>
                                     </div>
                                     <div className="flex gap-2">
                                         <select
@@ -493,7 +510,10 @@ const BulkLots: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-bold text-white leading-tight">{item.name}</span>
+                                                <span className="text-xs font-bold text-white leading-tight">
+                                                    {item.name}
+                                                    {item.potentialResalePrice ? <span className="ml-2 text-amber-300 font-black">({item.potentialResalePrice}€)</span> : null}
+                                                </span>
                                                 <span className="text-[8px] font-black uppercase tracking-widest text-teal-200 opacity-70">
                                                     {item.type} 
                                                     {item.type === 'Carte' && (
