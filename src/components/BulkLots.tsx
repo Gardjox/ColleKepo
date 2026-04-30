@@ -579,7 +579,7 @@ const BulkLots: React.FC = () => {
                                         onClick={() => {
                                             setEditingLotId(null);
                                             setLotName('');
-                                            setLotPrice(0);
+                                            setLotPrice('');
                                             setComposedItems([]);
                                         }}
                                         className="w-full py-2 bg-transparent text-teal-200 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:text-white transition-all"
