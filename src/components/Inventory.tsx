@@ -52,6 +52,8 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
     const [filterLanguage, setFilterLanguage] = useState<string>('Tous');
     const [filterCondition, setFilterCondition] = useState<string>('Tous');
     const [filterFinish, setFilterFinish] = useState<string>('Tous');
+    const [filterSeries, setFilterSeries] = useState<string>('Toutes');
+    const [filterSubSeries, setFilterSubSeries] = useState<string>('Toutes');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
@@ -233,8 +235,10 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
             const matchesLanguage = filterLanguage === 'Tous' || item.language === filterLanguage;
             const matchesCondition = filterCondition === 'Tous' || item.condition === filterCondition;
             const matchesFinish = filterFinish === 'Tous' || item.cardFinish === filterFinish;
+            const matchesSeries = filterSeries === 'Toutes' || item.series === filterSeries;
+            const matchesSubSeries = filterSubSeries === 'Toutes' || item.subSeries === filterSubSeries;
 
-            return matchesSearch && matchesType && matchesStatus && matchesLanguage && matchesCondition && matchesFinish;
+            return matchesSearch && matchesType && matchesStatus && matchesLanguage && matchesCondition && matchesFinish && matchesSeries && matchesSubSeries;
         })
         .sort((a, b) => {
             if (sortBy === 'created_at') return b.createdAt - a.createdAt;
@@ -352,13 +356,13 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
                             onClick={() => setShowFilters(!showFilters)}
                             className={cn(
                                 "flex items-center gap-2 px-4 py-2 border rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all",
-                                showFilters || activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous'
+                                showFilters || activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous' || filterSeries !== 'Toutes' || filterSubSeries !== 'Toutes'
                                     ? "bg-teal-50 border-teal-200 text-teal-600 shadow-sm shadow-teal-50"
                                     : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                             )}
                         >
                             <Filter className="w-4 h-4" />
-                            {activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous' ? 'Filtres actifs' : 'Filtres'}
+                            {activeType !== 'Tous' || activeStatus !== 'Tous' || sortBy !== 'created_at' || filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous' || filterSeries !== 'Toutes' || filterSubSeries !== 'Toutes' ? 'Filtres actifs' : 'Filtres'}
                             <ChevronDown className={cn("w-3 h-3 transition-transform", showFilters && "rotate-180")} />
                         </button>
                         <button
@@ -436,13 +440,27 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
                                 <div className="flex flex-col gap-3">
                                     <h5 className="text-[10px] font-black text-teal-400 uppercase tracking-widest mb-1 flex items-center justify-between">
                                         Filtres Cartes
-                                        {(filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous') && (
-                                            <button onClick={() => { setFilterLanguage('Tous'); setFilterCondition('Tous'); setFilterFinish('Tous'); }} className="text-teal-500 hover:text-teal-600 text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                                        {(filterLanguage !== 'Tous' || filterCondition !== 'Tous' || filterFinish !== 'Tous' || filterSeries !== 'Toutes' || filterSubSeries !== 'Toutes') && (
+                                            <button onClick={() => { setFilterLanguage('Tous'); setFilterCondition('Tous'); setFilterFinish('Tous'); setFilterSeries('Toutes'); setFilterSubSeries('Toutes'); }} className="text-teal-500 hover:text-teal-600 text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
                                                 Reset <X className="w-3 h-3" />
                                             </button>
                                         )}
                                     </h5>
                                     
+                                    <select value={filterSeries} onChange={(e) => { setFilterSeries(e.target.value); setFilterSubSeries('Toutes'); }} className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all">
+                                        <option value="Toutes">Série: Toutes</option>
+                                        {POKEMON_SERIES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                    </select>
+
+                                    {filterSeries !== 'Toutes' && (
+                                        <select value={filterSubSeries} onChange={(e) => setFilterSubSeries(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all">
+                                            <option value="Toutes">Sous-série: Toutes</option>
+                                            {POKEMON_SERIES.find(s => s.id === filterSeries)?.sets.map(s => (
+                                                <option key={s.id} value={s.id}>{s.shortName}</option>
+                                            ))}
+                                        </select>
+                                    )}
+
                                     <select value={filterLanguage} onChange={(e) => setFilterLanguage(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all">
                                         <option value="Tous">Langue: Toutes</option>
                                         <option value="FR">🇫🇷 FR</option>
