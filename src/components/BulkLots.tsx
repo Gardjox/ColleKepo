@@ -17,7 +17,7 @@ const BulkLots: React.FC = () => {
     const [lots, setLots] = useState<Lot[]>([]);
     const [loading, setLoading] = useState(true);
     const [lotName, setLotName] = useState<string>('');
-    const [lotPrice, setLotPrice] = useState<number>(0);
+    const [lotPrice, setLotPrice] = useState<string>('');
     const [isSaving, setIsSaving] = useState(false);
     const [editingLotId, setEditingLotId] = useState<string | null>(null);
 
@@ -42,7 +42,8 @@ const BulkLots: React.FC = () => {
     const [newItemFinish, setNewItemFinish] = useState('Standard');
 
     const itemCount = composedItems.reduce((acc, item) => acc + item.quantity, 0);
-    const breakEven = itemCount > 0 ? (lotPrice / itemCount).toFixed(2) : '0.00';
+    const parsedLotPrice = parseFloat(lotPrice) || 0;
+    const breakEven = itemCount > 0 ? (parsedLotPrice / itemCount).toFixed(2) : '0.00';
 
     const fetchLots = async () => {
         setLoading(true);
@@ -109,7 +110,7 @@ const BulkLots: React.FC = () => {
         try {
             setEditingLotId(lot.id);
             setLotName(lot.name);
-            setLotPrice(lot.purchase_price);
+            setLotPrice(lot.purchase_price.toString());
 
             const { data: dbItems, error } = await supabase
                 .from('items')
@@ -145,8 +146,10 @@ const BulkLots: React.FC = () => {
     };
 
     const handleSaveLot = async () => {
-        if (!lotName || lotPrice <= 0 || composedItems.length === 0) {
-            alert('Veuillez remplir le nom, le prix et ajouter au moins un article au lot.');
+        const finalLotPrice = parseFloat(lotPrice) || 0;
+        
+        if (!lotName || finalLotPrice < 0 || composedItems.length === 0) {
+            alert('Veuillez remplir le nom, un prix valide et ajouter au moins un article au lot.');
             return;
         }
 
@@ -163,7 +166,7 @@ const BulkLots: React.FC = () => {
                     .from('lots')
                     .update({
                         name: lotName,
-                        purchase_price: lotPrice,
+                        purchase_price: finalLotPrice,
                         item_count: itemCount,
                         break_even_price: currentBreakEven
                     })
@@ -195,7 +198,7 @@ const BulkLots: React.FC = () => {
                     .insert([{
                         user_id: user.id,
                         name: lotName,
-                        purchase_price: lotPrice,
+                        purchase_price: finalLotPrice,
                         item_count: itemCount,
                         break_even_price: currentBreakEven
                     }])
@@ -280,7 +283,7 @@ const BulkLots: React.FC = () => {
 
             // Success
             setLotName('');
-            setLotPrice(0);
+            setLotPrice('');
             setComposedItems([]);
             setEditingLotId(null);
             fetchLots();
@@ -346,10 +349,12 @@ const BulkLots: React.FC = () => {
                                 <label className="block text-[10px] font-bold uppercase tracking-widest text-teal-100 mb-1.5 opacity-80">Prix total du lot (€)</label>
                                 <input
                                     type="number"
+                                    step="0.01"
+                                    min="0"
                                     className="w-full bg-teal-500 border border-teal-400 rounded-xl px-4 py-2.5 text-white placeholder-teal-300 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all text-sm"
                                     placeholder="0.00"
-                                    value={lotPrice || ''}
-                                    onChange={(e) => setLotPrice(Number(e.target.value))}
+                                    value={lotPrice}
+                                    onChange={(e) => setLotPrice(e.target.value)}
                                 />
                             </div>
                         </div>
