@@ -31,7 +31,7 @@ const BulkLots: React.FC = () => {
     const [newItemQty, setNewItemQty] = useState<number>(1);
     const [newItemPhoto, setNewItemPhoto] = useState<File | null>(null);
     const [newItemPreview, setNewItemPreview] = useState<string | null>(null);
-    const [newItemPotentialPrice, setNewItemPotentialPrice] = useState<number>(0);
+    const [newItemPotentialPrice, setNewItemPotentialPrice] = useState<string>('');
     
     // Nouveaux états de détails (Carte)
     const [newItemSeries, setNewItemSeries] = useState('');
@@ -82,7 +82,7 @@ const BulkLots: React.FC = () => {
             quantity: newItemQty,
             photo: newItemPhoto,
             previewUrl: newItemPreview || undefined,
-            potentialResalePrice: newItemPotentialPrice,
+            potentialResalePrice: parseFloat(newItemPotentialPrice) || 0,
             series: newItemType === 'Carte' ? newItemSeries : undefined,
             subSeries: newItemType === 'Carte' ? newItemSubSeries : undefined,
             cardNumber: newItemType === 'Carte' ? newItemNumber : undefined,
@@ -94,7 +94,7 @@ const BulkLots: React.FC = () => {
         setNewItemQty(1);
         setNewItemPhoto(null);
         setNewItemPreview(null);
-        setNewItemPotentialPrice(0);
+        setNewItemPotentialPrice('');
         setNewItemSeries('');
         setNewItemSubSeries('');
         setNewItemNumber('');
@@ -396,8 +396,8 @@ const BulkLots: React.FC = () => {
                                                 step="0.01"
                                                 className="w-full bg-teal-700/30 border border-teal-400/50 rounded-lg px-2 py-2 text-xs text-white placeholder-teal-300 focus:outline-none"
                                                 placeholder="Cote €"
-                                                value={newItemPotentialPrice || ''}
-                                                onChange={(e) => setNewItemPotentialPrice(Number(e.target.value))}
+                                                value={newItemPotentialPrice}
+                                                onChange={(e) => setNewItemPotentialPrice(e.target.value)}
                                                 onKeyDown={(e) => e.key === 'Enter' && addItemToComposition()}
                                             />
                                         </div>
