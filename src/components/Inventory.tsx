@@ -466,6 +466,8 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
                                         <option value="FR">🇫🇷 FR</option>
                                         <option value="JAP">🇯🇵 JAP</option>
                                         <option value="EN">🇺🇸 EN</option>
+                                        <option value="CHI">🇨🇳 CHI</option>
+                                        <option value="KOR">🇰🇷 KOR</option>
                                     </select>
                                     <select value={filterCondition} onChange={(e) => setFilterCondition(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all">
                                         <option value="Tous">État: Tous</option>

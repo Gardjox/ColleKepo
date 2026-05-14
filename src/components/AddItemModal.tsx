@@ -214,27 +214,41 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                 
                                 <div className="w-full sm:col-span-2">
                                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Langue de la carte</label>
-                                    <div className="flex gap-3">
+                                    <div className="flex flex-wrap gap-2">
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, language: 'FR' })}
-                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'FR' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                            className={`flex-1 min-w-[60px] py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'FR' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
                                         >
                                             🇫🇷 FR
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, language: 'JAP' })}
-                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'JAP' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                            className={`flex-1 min-w-[60px] py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'JAP' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
                                         >
                                             🇯🇵 JAP
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, language: 'EN' })}
-                                            className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'EN' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                            className={`flex-1 min-w-[60px] py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'EN' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
                                         >
                                             🇺🇸 EN
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, language: 'CHI' })}
+                                            className={`flex-1 min-w-[60px] py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'CHI' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            🇨🇳 CHI
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, language: 'KOR' })}
+                                            className={`flex-1 min-w-[60px] py-2.5 rounded-xl border transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.language === 'KOR' ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                        >
+                                            🇰🇷 KOR
                                         </button>
                                     </div>
                                 </div>

@@ -469,6 +469,8 @@ const BulkLots: React.FC = () => {
                                                     <option value="FR">🇫🇷 FR</option>
                                                     <option value="JAP">🇯🇵 JAP</option>
                                                     <option value="EN">🇺🇸 EN</option>
+                                                    <option value="CHI">🇨🇳 CHI</option>
+                                                    <option value="KOR">🇰🇷 KOR</option>
                                                 </select>
                                                 <select value={newItemCondition} onChange={(e) => setNewItemCondition(e.target.value)} className="flex-[1.5] bg-teal-700/30 border border-teal-400/50 rounded-lg px-1 py-2 text-[9px] text-white focus:outline-none">
                                                     <option value="Mint">Mint (M)</option>
