@@ -185,7 +185,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                 {formData.series && (
                                     <div className="w-full">
                                         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 leading-none">Sous-série</label>
-                                        <div className="relative flex gap-2">
+                                        <div className="flex gap-2 relative">
                                             <div className="relative flex-1">
                                                 <select
                                                     className="w-full appearance-none px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm font-medium"
@@ -209,6 +209,28 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                                 onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
                                             />
                                         </div>
+                                        {selectedSeries?.sets.find(s => s.id === formData.subSeries)?.cards && (
+                                            <div className="relative mt-2">
+                                                <select
+                                                    className="w-full appearance-none px-4 py-2 bg-teal-50 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-xs font-bold text-teal-700"
+                                                    onChange={(e) => {
+                                                        const card = selectedSeries.sets.find(s => s.id === formData.subSeries)?.cards?.find(c => c.number === e.target.value);
+                                                        if (card) {
+                                                            setFormData({ ...formData, name: card.name, cardNumber: card.number });
+                                                        }
+                                                    }}
+                                                    value=""
+                                                >
+                                                    <option value="" disabled>⚡ Sélection rapide de carte...</option>
+                                                    {selectedSeries.sets.find(s => s.id === formData.subSeries)?.cards?.map(card => (
+                                                        <option key={card.number} value={card.number}>
+                                                            {isMobile ? card.number : `${card.name} ${card.number}`}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 text-teal-500 pointer-events-none" />
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                                 

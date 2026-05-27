@@ -464,6 +464,28 @@ const BulkLots: React.FC = () => {
                                                     className="w-14 bg-teal-700/30 border border-teal-400/50 rounded-lg px-2 py-2 text-[10px] text-white placeholder-teal-300 focus:outline-none" 
                                                 />
                                             </div>
+                                            {POKEMON_SERIES.find(s => s.id === newItemSeries)?.sets.find(s => s.id === newItemSubSeries)?.cards && (
+                                                <div className="flex">
+                                                    <select
+                                                        className="flex-1 bg-teal-600/30 border border-teal-400/50 rounded-lg px-2 py-2 text-[10px] font-bold text-teal-100 focus:outline-none"
+                                                        onChange={(e) => {
+                                                            const card = POKEMON_SERIES.find(s => s.id === newItemSeries)?.sets.find(s => s.id === newItemSubSeries)?.cards?.find(c => c.number === e.target.value);
+                                                            if (card) {
+                                                                setNewItemName(card.name);
+                                                                setNewItemNumber(card.number);
+                                                            }
+                                                        }}
+                                                        value=""
+                                                    >
+                                                        <option value="" disabled>⚡ Sélection rapide de carte...</option>
+                                                        {POKEMON_SERIES.find(s => s.id === newItemSeries)?.sets.find(s => s.id === newItemSubSeries)?.cards?.map(card => (
+                                                            <option key={card.number} value={card.number}>
+                                                                {card.number} - {card.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
                                             <div className="flex gap-2">
                                                 <select value={newItemLanguage} onChange={(e) => setNewItemLanguage(e.target.value)} className="flex-1 bg-teal-700/30 border border-teal-400/50 rounded-lg px-1 py-2 text-[9px] text-white focus:outline-none">
                                                     <option value="FR">🇫🇷 FR</option>
