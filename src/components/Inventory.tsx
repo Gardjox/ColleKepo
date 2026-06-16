@@ -223,10 +223,13 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
         }
     };
 
+    const normalizeString = (str: string) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
+
     const filteredItems = items
         .filter(item => {
-            const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (item.purchaseLocation?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+            const normalizedSearchTerm = normalizeString(searchTerm);
+            const matchesSearch = normalizeString(item.name).includes(normalizedSearchTerm) ||
+                normalizeString(item.purchaseLocation || '').includes(normalizedSearchTerm);
             const matchesType = activeType === 'Tous' || item.type === activeType;
             const matchesStatus = activeStatus === 'Tous' ||
                 (activeStatus === 'En Stock' && !item.isSold) ||
@@ -647,6 +650,13 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
                                                             <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate max-w-[60px] sm:max-w-[80px]">{item.purchaseLocation}</span>
                                                         )}
                                                     </div>
+                                                    {item.type === 'Carte' && (
+                                                        <div className="flex flex-wrap gap-1.5 mt-2">
+                                                            <a href={`https://www.vinted.fr/catalog?search_text=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 bg-teal-50 text-teal-600 rounded-md text-[9px] sm:text-[10px] font-bold border border-teal-100 hover:bg-teal-100 transition-colors">Vinted</a>
+                                                            <a href={`https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[9px] sm:text-[10px] font-bold border border-blue-100 hover:bg-blue-100 transition-colors">eBay</a>
+                                                            <a href={`https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 bg-sky-50 text-sky-600 rounded-md text-[9px] sm:text-[10px] font-bold border border-sky-100 hover:bg-sky-100 transition-colors">Cardmarket</a>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </td>
@@ -780,6 +790,14 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
                                                 </span>
                                             )}
                                         </div>
+
+                                        {item.type === 'Carte' && (
+                                            <div className="flex flex-wrap gap-1.5 mb-3">
+                                                <a href={`https://www.vinted.fr/catalog?search_text=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-1 py-1 bg-teal-50 text-teal-600 rounded-md text-[9px] font-bold border border-teal-100 hover:bg-teal-100 transition-colors">Vinted</a>
+                                                <a href={`https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-1 py-1 bg-blue-50 text-blue-600 rounded-md text-[9px] font-bold border border-blue-100 hover:bg-blue-100 transition-colors">eBay</a>
+                                                <a href={`https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-1 py-1 bg-sky-50 text-sky-600 rounded-md text-[9px] font-bold border border-sky-100 hover:bg-sky-100 transition-colors">Cardmarket</a>
+                                            </div>
+                                        )}
 
                                         <div className="mt-auto flex items-end justify-between pt-2 border-t border-slate-50">
                                             <div>
