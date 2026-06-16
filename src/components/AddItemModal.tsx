@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Camera, Save, Upload, Calendar, ChevronDown } from 'lucide-react';
 import { POKEMON_SERIES } from '../data/pokemonSets';
 import type { ProductType, InventoryItem } from '../types';
+import { fetchCardsForSet } from '../utils/tcgdex';
 
 interface AddItemModalProps {
     isOpen: boolean;
@@ -32,12 +33,43 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
     });
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+    const [fetchedCards, setFetchedCards] = useState<{number: string, name: string}[] | null>(null);
+    const [isLoadingCards, setIsLoadingCards] = useState(false);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 640);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        if (formData.type === 'Carte' && formData.subSeries) {
+            const localSet = POKEMON_SERIES.find(s => s.id === formData.series)?.sets.find(s => s.id === formData.subSeries);
+            if (localSet?.cards) {
+                setFetchedCards(localSet.cards);
+                return;
+            }
+
+            let isMounted = true;
+            setFetchedCards(null);
+            setIsLoadingCards(true);
+
+            fetchCardsForSet(formData.subSeries).then(cards => {
+                if (isMounted) {
+                    if (cards.length > 0) {
+                        setFetchedCards(cards);
+                    } else {
+                        setFetchedCards(null);
+                    }
+                    setIsLoadingCards(false);
+                }
+            });
+
+            return () => { isMounted = false; };
+        } else {
+            setFetchedCards(null);
+        }
+    }, [formData.subSeries, formData.series, formData.type]);
 
     useEffect(() => {
         if (initialData) {
@@ -209,12 +241,15 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                                 onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
                                             />
                                         </div>
-                                        {selectedSeries?.sets.find(s => s.id === formData.subSeries)?.cards && (
+                                        {isLoadingCards && (
+                                            <div className="text-xs text-slate-500 mt-2">Chargement des cartes...</div>
+                                        )}
+                                        {!isLoadingCards && fetchedCards && (
                                             <div className="relative mt-2">
                                                 <select
                                                     className="w-full appearance-none px-4 py-2 bg-teal-50 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-xs font-bold text-teal-700"
                                                     onChange={(e) => {
-                                                        const card = selectedSeries.sets.find(s => s.id === formData.subSeries)?.cards?.find(c => c.number === e.target.value);
+                                                        const card = fetchedCards.find(c => c.number === e.target.value);
                                                         if (card) {
                                                             setFormData({ ...formData, name: card.name, cardNumber: card.number });
                                                         }
@@ -222,7 +257,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                                     value=""
                                                 >
                                                     <option value="" disabled>⚡ Sélection rapide de carte...</option>
-                                                    {selectedSeries.sets.find(s => s.id === formData.subSeries)?.cards?.map(card => (
+                                                    {fetchedCards.map(card => (
                                                         <option key={card.number} value={card.number}>
                                                             {isMobile ? card.number : `${card.name} ${card.number}`}
                                                         </option>

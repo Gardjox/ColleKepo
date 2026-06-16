@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera, Edit2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { POKEMON_SERIES } from '../data/pokemonSets';
+import { fetchCardsForSet } from '../utils/tcgdex';
 
 interface Lot {
     id: string;
@@ -40,6 +41,38 @@ const BulkLots: React.FC = () => {
     const [newItemLanguage, setNewItemLanguage] = useState('FR');
     const [newItemCondition, setNewItemCondition] = useState('Mint');
     const [newItemFinish, setNewItemFinish] = useState('Standard');
+    
+    const [fetchedCards, setFetchedCards] = useState<{number: string, name: string}[] | null>(null);
+    const [isLoadingCards, setIsLoadingCards] = useState(false);
+
+    useEffect(() => {
+        if (newItemType === 'Carte' && newItemSubSeries) {
+            const localSet = POKEMON_SERIES.find(s => s.id === newItemSeries)?.sets.find(s => s.id === newItemSubSeries);
+            if (localSet?.cards) {
+                setFetchedCards(localSet.cards);
+                return;
+            }
+
+            let isMounted = true;
+            setFetchedCards(null);
+            setIsLoadingCards(true);
+
+            fetchCardsForSet(newItemSubSeries).then(cards => {
+                if (isMounted) {
+                    if (cards.length > 0) {
+                        setFetchedCards(cards);
+                    } else {
+                        setFetchedCards(null);
+                    }
+                    setIsLoadingCards(false);
+                }
+            });
+
+            return () => { isMounted = false; };
+        } else {
+            setFetchedCards(null);
+        }
+    }, [newItemSubSeries, newItemSeries, newItemType]);
 
     const itemCount = composedItems.reduce((acc, item) => acc + item.quantity, 0);
     const parsedLotPrice = parseFloat(lotPrice) || 0;
@@ -464,12 +497,15 @@ const BulkLots: React.FC = () => {
                                                     className="w-14 bg-teal-700/30 border border-teal-400/50 rounded-lg px-2 py-2 text-[10px] text-white placeholder-teal-300 focus:outline-none" 
                                                 />
                                             </div>
-                                            {POKEMON_SERIES.find(s => s.id === newItemSeries)?.sets.find(s => s.id === newItemSubSeries)?.cards && (
+                                            {isLoadingCards && (
+                                                <div className="text-[10px] text-teal-300 mt-1 mb-1">Chargement des cartes...</div>
+                                            )}
+                                            {!isLoadingCards && fetchedCards && (
                                                 <div className="flex">
                                                     <select
                                                         className="flex-1 bg-teal-600/30 border border-teal-400/50 rounded-lg px-2 py-2 text-[10px] font-bold text-teal-100 focus:outline-none"
                                                         onChange={(e) => {
-                                                            const card = POKEMON_SERIES.find(s => s.id === newItemSeries)?.sets.find(s => s.id === newItemSubSeries)?.cards?.find(c => c.number === e.target.value);
+                                                            const card = fetchedCards.find(c => c.number === e.target.value);
                                                             if (card) {
                                                                 setNewItemName(card.name);
                                                                 setNewItemNumber(card.number);
@@ -478,7 +514,7 @@ const BulkLots: React.FC = () => {
                                                         value=""
                                                     >
                                                         <option value="" disabled>⚡ Sélection rapide de carte...</option>
-                                                        {POKEMON_SERIES.find(s => s.id === newItemSeries)?.sets.find(s => s.id === newItemSubSeries)?.cards?.map(card => (
+                                                        {fetchedCards.map(card => (
                                                             <option key={card.number} value={card.number}>
                                                                 {card.number} - {card.name}
                                                             </option>
