@@ -245,25 +245,39 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                             <div className="text-xs text-slate-500 mt-2">Chargement des cartes...</div>
                                         )}
                                         {!isLoadingCards && fetchedCards && (
-                                            <div className="relative mt-2">
-                                                <select
-                                                    className="w-full appearance-none px-4 py-2 bg-teal-50 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-xs font-bold text-teal-700"
-                                                    onChange={(e) => {
-                                                        const card = fetchedCards.find(c => c.number === e.target.value);
-                                                        if (card) {
-                                                            setFormData({ ...formData, name: card.name, cardNumber: card.number });
-                                                        }
-                                                    }}
-                                                    value=""
-                                                >
-                                                    <option value="" disabled>⚡ Sélection rapide de carte...</option>
-                                                    {fetchedCards.map(card => (
-                                                        <option key={card.number} value={card.number}>
-                                                            {isMobile ? card.number : `${card.name} ${card.number}`}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 text-teal-500 pointer-events-none" />
+                                            <div className="mt-2 space-y-2">
+                                                <div className="relative">
+                                                    <select
+                                                        className="w-full appearance-none px-4 py-2 bg-teal-50 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-xs font-bold text-teal-700"
+                                                        onChange={(e) => {
+                                                            const card = fetchedCards.find(c => c.number === e.target.value);
+                                                            if (card) {
+                                                                setFormData({ ...formData, name: card.name, cardNumber: card.number });
+                                                            }
+                                                        }}
+                                                        value=""
+                                                    >
+                                                        <option value="" disabled>⚡ Sélection rapide de carte...</option>
+                                                        {fetchedCards.map(card => (
+                                                            <option key={card.number} value={card.number}>
+                                                                {isMobile ? card.number : `${card.name} ${card.number}`}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 text-teal-500 pointer-events-none" />
+                                                </div>
+                                                {formData.name && (
+                                                    <div className="flex justify-end">
+                                                        <a
+                                                            href={`https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=${encodeURIComponent(formData.name + (formData.cardNumber ? ' ' + formData.cardNumber : ''))}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-xl text-[10px] font-bold border border-sky-100 transition-colors shadow-sm"
+                                                        >
+                                                            🔍 Tcheker le prix (Cardmarket)
+                                                        </a>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>

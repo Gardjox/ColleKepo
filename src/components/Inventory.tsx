@@ -16,7 +16,8 @@ import {
     X,
     Maximize2,
     LayoutGrid,
-    List
+    List,
+    ChevronLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -29,16 +30,22 @@ type SortOption = 'created_at' | 'purchase_newest' | 'purchase_oldest' | 'sold_n
 
 interface InventoryProps {
     isPersonal?: boolean;
+    initialType?: ProductType | 'Tous';
+    onBack?: () => void;
 }
 
-const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
+const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType = 'Tous', onBack }) => {
     const [items, setItems] = useState<InventoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeType, setActiveType] = useState<ProductType | 'Tous'>('Tous');
+    const [activeType, setActiveType] = useState<ProductType | 'Tous'>(initialType);
     const [activeStatus, setActiveStatus] = useState<'Tous' | 'En Stock' | 'Vendu'>('Tous');
     const [sortBy, setSortBy] = useState<SortOption>('created_at');
     const [showFilters, setShowFilters] = useState(false);
+
+    useEffect(() => {
+        setActiveType(initialType);
+    }, [initialType]);
     
     const [viewMode, setViewMode] = useState<'list' | 'gallery'>(() => {
         return (localStorage.getItem('inventoryViewMode') as 'list' | 'gallery') || 'list';
@@ -284,6 +291,15 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false }) => {
 
     return (
         <div className="space-y-6">
+            {onBack && (
+                <button
+                    onClick={onBack}
+                    className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors font-bold text-xs uppercase tracking-widest bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm self-start w-fit hover:border-teal-400"
+                >
+                    <ChevronLeft className="w-4 h-4 text-teal-600" />
+                    Retour aux Catégories
+                </button>
+            )}
             {/* Image Zoom Overlay/Lightbox with Framer Motion */}
             <AnimatePresence>
                 {zoomItem && (
