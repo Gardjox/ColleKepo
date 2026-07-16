@@ -511,7 +511,7 @@ const BulkLots: React.FC = () => {
                                                                 setNewItemNumber(card.number);
                                                             }
                                                         }}
-                                                        value=""
+                                                        value={newItemNumber || ""}
                                                     >
                                                         <option value="" disabled>⚡ Sélection rapide de carte...</option>
                                                         {fetchedCards.map(card => (

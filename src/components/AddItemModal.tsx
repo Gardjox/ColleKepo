@@ -255,7 +255,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
                                                                 setFormData({ ...formData, name: card.name, cardNumber: card.number });
                                                             }
                                                         }}
-                                                        value=""
+                                                        value={formData.cardNumber || ""}
                                                     >
                                                         <option value="" disabled>⚡ Sélection rapide de carte...</option>
                                                         {fetchedCards.map(card => (

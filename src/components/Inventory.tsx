@@ -17,7 +17,8 @@ import {
     Maximize2,
     LayoutGrid,
     List,
-    ChevronLeft
+    ChevronLeft,
+    QrCode
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -65,6 +66,7 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
     const [zoomItem, setZoomItem] = useState<InventoryItem | null>(null);
+    const [qrItem, setQrItem] = useState<InventoryItem | null>(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
     useEffect(() => {
@@ -118,6 +120,25 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
     useEffect(() => {
         fetchItems();
     }, []);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const markSoldId = params.get('markSold');
+        if (markSoldId && items.length > 0) {
+            const item = items.find(i => i.id === markSoldId);
+            if (item) {
+                if (item.isSold) {
+                    alert(`L'article "${item.name}" est déjà marqué comme vendu.`);
+                } else {
+                    handleMarkAsSold(item.id);
+                }
+                // Nettoyer l'URL
+                const url = new URL(window.location.href);
+                url.searchParams.delete('markSold');
+                window.history.replaceState({}, document.title, url.pathname + url.search);
+            }
+        }
+    }, [items]);
 
     const handleOpenModal = (item: InventoryItem | null = null) => {
         setEditingItem(item);
@@ -535,6 +556,53 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                 initialData={editingItem}
             />
 
+            {/* Modal QR Code */}
+            <AnimatePresence>
+                {qrItem && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+                        onClick={() => setQrItem(null)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 flex flex-col items-center"
+                        >
+                            <div className="flex justify-between items-center w-full mb-4">
+                                <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Vente rapide QR Code</h3>
+                                <button
+                                    onClick={() => setQrItem(null)}
+                                    className="p-1.5 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4 flex items-center justify-center">
+                                <img
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                                        window.location.origin + '/?markSold=' + qrItem.id
+                                    )}`}
+                                    alt="QR Code de vente"
+                                    className="w-48 h-48 rounded-xl object-contain shadow-inner"
+                                />
+                            </div>
+                            <p className="font-black text-slate-800 text-center text-sm mb-1">{qrItem.name}</p>
+                            {qrItem.cardNumber && (
+                                <p className="text-xs font-bold text-slate-400 mb-3">N°{qrItem.cardNumber}</p>
+                            )}
+                            <p className="text-slate-500 text-[11px] leading-relaxed text-center font-medium bg-slate-50 rounded-xl p-3 border border-slate-100">
+                                Scannez ce code avec votre smartphone pour marquer instantanément cet article comme vendu depuis votre mobile.
+                            </p>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="premium-card overflow-hidden bg-white/50 backdrop-blur-sm shadow-sm ring-1 ring-slate-100">
                 <div className="overflow-x-auto">
                     {loading ? (
@@ -703,13 +771,22 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                         <td className="px-3 sm:px-6 py-4">
                                             <div className="flex items-center justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                                 {!item.isSold && (
-                                                    <button
-                                                        onClick={() => handleMarkAsSold(item.id)}
-                                                        className="p-1.5 sm:p-2 text-teal-600 hover:bg-teal-50 rounded-lg sm:rounded-xl transition-all"
-                                                        title="Vendu"
-                                                    >
-                                                        <DollarSign className="w-4 h-4" />
-                                                    </button>
+                                                    <>
+                                                        <button
+                                                            onClick={() => setQrItem(item)}
+                                                            className="p-1.5 sm:p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg sm:rounded-xl transition-all"
+                                                            title="QR Code Vente"
+                                                        >
+                                                            <QrCode className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleMarkAsSold(item.id)}
+                                                            className="p-1.5 sm:p-2 text-teal-600 hover:bg-teal-50 rounded-lg sm:rounded-xl transition-all"
+                                                            title="Vendu"
+                                                        >
+                                                            <DollarSign className="w-4 h-4" />
+                                                        </button>
+                                                    </>
                                                 )}
                                                 <button
                                                     onClick={() => handleOpenModal(item)}
@@ -840,9 +917,14 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             <Edit2 className="w-3.5 h-3.5" />
                                         </button>
                                         {!item.isSold && (
-                                            <button onClick={(e) => { e.stopPropagation(); handleMarkAsSold(item.id); }} className="p-2 bg-white/90 backdrop-blur hover:bg-white text-teal-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Marquer comme vendu">
-                                                <DollarSign className="w-3.5 h-3.5" />
-                                            </button>
+                                            <>
+                                                <button onClick={(e) => { e.stopPropagation(); setQrItem(item); }} className="p-2 bg-white/90 backdrop-blur hover:bg-white text-indigo-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="QR Code Vente">
+                                                    <QrCode className="w-3.5 h-3.5" />
+                                                </button>
+                                                <button onClick={(e) => { e.stopPropagation(); handleMarkAsSold(item.id); }} className="p-2 bg-white/90 backdrop-blur hover:bg-white text-teal-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Marquer comme vendu">
+                                                    <DollarSign className="w-3.5 h-3.5" />
+                                                </button>
+                                            </>
                                         )}
                                         <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="p-2 bg-white/90 backdrop-blur hover:bg-red-50 text-red-500 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Supprimer">
                                             <Trash2 className="w-3.5 h-3.5" />
@@ -850,10 +932,18 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                     </div>
                                     
                                     {/* Action Buttons Bottom (Mobile only) */}
-                                    <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 bg-slate-50 lg:hidden">
+                                    <div className={cn(
+                                        "grid divide-x divide-slate-100 border-t border-slate-100 bg-slate-50 lg:hidden",
+                                        !item.isSold ? "grid-cols-4" : "grid-cols-3"
+                                    )}>
                                         <button onClick={() => handleOpenModal(item)} className="p-2 text-slate-500 hover:text-slate-800 flex justify-center transition-colors">
                                             <Edit2 className="w-4 h-4" />
                                         </button>
+                                        {!item.isSold && (
+                                            <button onClick={() => setQrItem(item)} className="p-2 text-indigo-600 hover:text-indigo-800 flex justify-center transition-colors">
+                                                <QrCode className="w-4 h-4" />
+                                            </button>
+                                        )}
                                         {!item.isSold ? (
                                             <button onClick={() => handleMarkAsSold(item.id)} className="p-2 text-teal-600 hover:text-teal-800 flex justify-center transition-colors">
                                                 <DollarSign className="w-4 h-4" />
