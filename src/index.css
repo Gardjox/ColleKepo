@@ -36,3 +36,88 @@ body {
     border-color: var(--color-teal-100);
   }
 }
+
+/* Styles d'impression pour l'étiquette 40mm x 20mm */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  /* Masquer tous les éléments de la page */
+  body * {
+    visibility: hidden !important;
+  }
+  /* Rendre uniquement l'étiquette et ses enfants visibles */
+  #printable-label, #printable-label * {
+    visibility: visible !important;
+  }
+  /* Positionner l'étiquette en haut à gauche et forcer ses dimensions d'impression */
+  #printable-label {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 40mm !important;
+    height: 20mm !important;
+    margin: 0 !important;
+    padding: 1mm !important;
+    box-sizing: border-box !important;
+    border: none !important;
+    background: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  #printable-label > div:first-child {
+    width: 18mm !important;
+    height: 18mm !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #printable-label img {
+    width: 18mm !important;
+    height: 18mm !important;
+    margin: 0 !important;
+  }
+  #printable-label > div:last-child {
+    flex: 1 !important;
+    padding-left: 2mm !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    height: 18mm !important;
+  }
+  #printable-label p {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: Arial, sans-serif !important;
+  }
+  #printable-label .title {
+    font-size: 7.5pt !important;
+    line-height: 1.1 !important;
+    font-weight: 900 !important;
+  }
+  #printable-label .subtitle {
+    font-size: 5.5pt !important;
+    color: #666 !important;
+    font-weight: bold !important;
+  }
+  #printable-label .price-line {
+    font-size: 6.5pt !important;
+    font-weight: bold !important;
+    margin-top: 1mm !important;
+  }
+  #printable-label .price-val {
+    font-size: 7.5pt !important;
+    font-weight: 900 !important;
+    color: #000 !important;
+  }
+  #printable-label .date-line {
+    font-size: 5.5pt !important;
+    color: #666 !important;
+    margin-top: 0.5mm !important;
+  }
+}

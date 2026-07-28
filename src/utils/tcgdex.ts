@@ -131,7 +131,11 @@ export function getTcgdexSetId(setId: string): string {
 export async function fetchCardsForSet(setId: string): Promise<{ number: string; name: string }[]> {
     try {
         const tcgdexId = getTcgdexSetId(setId);
-        const response = await fetch(`https://api.tcgdex.net/v2/fr/sets/${tcgdexId}`);
+        let response = await fetch(`https://api.tcgdex.net/v2/fr/sets/${tcgdexId}`);
+        if (!response.ok) {
+            // Fallback to English if French set is not available
+            response = await fetch(`https://api.tcgdex.net/v2/en/sets/${tcgdexId}`);
+        }
         if (!response.ok) {
             console.error("Failed to fetch from TCGDex", response.statusText);
             return [];
@@ -143,8 +147,10 @@ export async function fetchCardsForSet(setId: string): Promise<{ number: string;
                 return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             };
 
+            const maxCards = data.cardCount?.official || data.cardCount?.total || data.cards.length;
+
             return data.cards.map((card: TcgdexCard) => ({
-                number: `${card.localId}/${data.cardCount.official}`,
+                number: `${card.localId}/${maxCards}`,
                 name: formatCardName(card.name)
             }));
         }

@@ -556,7 +556,7 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                 initialData={editingItem}
             />
 
-            {/* Modal QR Code */}
+            {/* Modal QR Code Étiquette */}
             <AnimatePresence>
                 {qrItem && (
                     <motion.div
@@ -571,10 +571,10 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 flex flex-col items-center"
+                            className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 border border-slate-100 flex flex-col items-center"
                         >
                             <div className="flex justify-between items-center w-full mb-4">
-                                <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Vente rapide QR Code</h3>
+                                <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Création d'Étiquette</h3>
                                 <button
                                     onClick={() => setQrItem(null)}
                                     className="p-1.5 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
@@ -582,22 +582,65 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
-                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4 flex items-center justify-center">
-                                <img
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                                        window.location.origin + '/?markSold=' + qrItem.id
-                                    )}`}
-                                    alt="QR Code de vente"
-                                    className="w-48 h-48 rounded-xl object-contain shadow-inner"
-                                />
+
+                            {/* Aperçu de l'étiquette (échelle agrandie pour l'écran) */}
+                            <div className="text-center w-full mb-2">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Aperçu (Format 40 x 20 mm)</p>
+                                
+                                <div className="flex justify-center mb-4">
+                                    <div
+                                        id="printable-label"
+                                        className="w-[320px] h-[160px] bg-white border border-slate-300 rounded-xl p-2 flex items-center justify-between shadow-inner text-black select-none"
+                                        style={{ printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' }}
+                                    >
+                                        {/* QR Code */}
+                                        <div className="w-[120px] h-[120px] bg-white flex items-center justify-center p-1 border border-slate-100 rounded-lg">
+                                            <img
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+                                                    window.location.origin + '/?markSold=' + qrItem.id
+                                                )}`}
+                                                alt="QR Code de vente"
+                                                className="w-full h-full object-contain"
+                                            />
+                                        </div>
+
+                                        {/* Détails */}
+                                        <div className="flex-1 flex flex-col justify-center items-start pl-3 text-left overflow-hidden h-full">
+                                            <p className="title text-[14px] font-black text-slate-900 leading-tight truncate max-w-full mb-1">
+                                                {qrItem.name}
+                                            </p>
+                                            {qrItem.cardNumber && (
+                                                <p className="subtitle text-[10px] font-bold text-slate-400 leading-none mb-2">
+                                                    N°{qrItem.cardNumber}
+                                                </p>
+                                            )}
+                                            <div className="mt-1">
+                                                <p className="price-line text-[11px] font-bold text-slate-700 leading-tight">
+                                                    Achat : <span className="price-val font-black text-teal-600 text-[12px]">{Number(qrItem.purchasePrice).toFixed(2)}€</span>
+                                                </p>
+                                                <p className="date-line text-[9px] font-bold text-slate-400 leading-none mt-1">
+                                                    Créé le : {new Date().toLocaleDateString('fr-FR')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <p className="font-black text-slate-800 text-center text-sm mb-1">{qrItem.name}</p>
-                            {qrItem.cardNumber && (
-                                <p className="text-xs font-bold text-slate-400 mb-3">N°{qrItem.cardNumber}</p>
-                            )}
-                            <p className="text-slate-500 text-[11px] leading-relaxed text-center font-medium bg-slate-50 rounded-xl p-3 border border-slate-100">
-                                Scannez ce code avec votre smartphone pour marquer instantanément cet article comme vendu depuis votre mobile.
-                            </p>
+
+                            <div className="flex gap-2 w-full mt-2">
+                                <button
+                                    onClick={() => window.print()}
+                                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-md transition-all active:scale-95 cursor-pointer"
+                                >
+                                    Imprimer l'étiquette
+                                </button>
+                                <button
+                                    onClick={() => setQrItem(null)}
+                                    className="flex-1 py-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer"
+                                >
+                                    Fermer
+                                </button>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}
