@@ -55,6 +55,15 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
     useEffect(() => {
         localStorage.setItem('inventoryViewMode', viewMode);
     }, [viewMode]);
+
+    const [galleryDensity, setGalleryDensity] = useState<5 | 10 | 15>(() => {
+        const saved = Number(localStorage.getItem('inventoryGalleryDensity'));
+        return (saved === 5 || saved === 10 || saved === 15) ? saved : 5;
+    });
+
+    useEffect(() => {
+        localStorage.setItem('inventoryGalleryDensity', galleryDensity.toString());
+    }, [galleryDensity]);
     
     // Nouveaux filtres Spécial Cartes
     const [filterLanguage, setFilterLanguage] = useState<string>('Tous');
@@ -376,22 +385,63 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                     </div>
 
                     <div className="flex gap-2 w-full md:w-auto">
-                        <div className="flex items-center bg-slate-50 border border-slate-100 p-1 rounded-xl mr-2">
+                        <div className="flex items-center bg-slate-50 border border-slate-100 p-1 rounded-xl">
                             <button
                                 onClick={() => setViewMode('list')}
-                                className={cn("p-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-600", viewMode === 'list' && "bg-white shadow-sm text-teal-600")}
+                                className={cn("p-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-600", viewMode === 'list' && "bg-white shadow-sm text-teal-600 font-bold")}
                                 title="Vue Liste"
                             >
                                 <List className="w-3.5 h-3.5" />
                             </button>
                             <button
                                 onClick={() => setViewMode('gallery')}
-                                className={cn("p-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-600", viewMode === 'gallery' && "bg-white shadow-sm text-teal-600")}
+                                className={cn("p-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-600", viewMode === 'gallery' && "bg-white shadow-sm text-teal-600 font-bold")}
                                 title="Vue Galerie"
                             >
                                 <LayoutGrid className="w-3.5 h-3.5" />
                             </button>
                         </div>
+
+                        {viewMode === 'gallery' && (
+                            <div className="flex items-center bg-slate-50 border border-slate-100 p-1 rounded-xl text-[10px] font-bold">
+                                <button
+                                    onClick={() => setGalleryDensity(5)}
+                                    className={cn(
+                                        "px-2 sm:px-2.5 py-1 rounded-lg transition-all whitespace-nowrap",
+                                        galleryDensity === 5
+                                            ? "bg-white shadow-sm text-teal-700 font-black"
+                                            : "text-slate-400 hover:text-slate-600"
+                                    )}
+                                    title="Grand format (5 par ligne)"
+                                >
+                                    Grand (5)
+                                </button>
+                                <button
+                                    onClick={() => setGalleryDensity(10)}
+                                    className={cn(
+                                        "px-2 sm:px-2.5 py-1 rounded-lg transition-all whitespace-nowrap",
+                                        galleryDensity === 10
+                                            ? "bg-white shadow-sm text-teal-700 font-black"
+                                            : "text-slate-400 hover:text-slate-600"
+                                    )}
+                                    title="Moyen format (10 par ligne)"
+                                >
+                                    Moyen (10)
+                                </button>
+                                <button
+                                    onClick={() => setGalleryDensity(15)}
+                                    className={cn(
+                                        "px-2 sm:px-2.5 py-1 rounded-lg transition-all whitespace-nowrap",
+                                        galleryDensity === 15
+                                            ? "bg-white shadow-sm text-teal-700 font-black"
+                                            : "text-slate-400 hover:text-slate-600"
+                                    )}
+                                    title="Petit format (15 par ligne)"
+                                >
+                                    Petit (15)
+                                </button>
+                            </div>
+                        )}
                         <button
                             onClick={() => setShowFilters(!showFilters)}
                             className={cn(
@@ -850,11 +900,21 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                             </tbody>
                         </table>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 p-4 sm:p-6 bg-slate-50/30">
+                        <div className={cn(
+                            "bg-slate-50/30 transition-all",
+                            galleryDensity === 15
+                                ? "grid grid-cols-3 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-12 xl:grid-cols-[repeat(15,minmax(0,1fr))] gap-1.5 sm:gap-2 p-2 sm:p-3"
+                                : galleryDensity === 10
+                                ? "grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2.5 sm:gap-3 p-3 sm:p-4"
+                                : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 p-4 sm:p-6"
+                        )}>
                             {filteredItems.map((item) => (
                                 <div key={item.id} className="group relative flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                                     <div 
-                                        className="relative w-full aspect-[3/4] bg-slate-50 cursor-pointer overflow-hidden border-b border-slate-100 flex items-center justify-center p-2"
+                                        className={cn(
+                                            "relative w-full aspect-[3/4] bg-slate-50 cursor-pointer overflow-hidden border-b border-slate-100 flex items-center justify-center",
+                                            galleryDensity === 15 ? "p-1" : galleryDensity === 10 ? "p-1.5" : "p-2"
+                                        )}
                                         onClick={() => setZoomItem(item)}
                                     >
                                         {item.photoUrl ? (
@@ -865,28 +925,48 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             />
                                         ) : (
                                             <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
-                                                <ImageIcon className="w-8 h-8 mb-2 opacity-30" />
-                                                <span className="text-[10px] font-bold uppercase">Sans image</span>
+                                                <ImageIcon className={cn(galleryDensity === 15 ? "w-4 h-4 mb-1" : galleryDensity === 10 ? "w-6 h-6 mb-1" : "w-8 h-8 mb-2", "opacity-30")} />
+                                                <span className={cn(galleryDensity === 15 ? "text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[10px]", "font-bold uppercase")}>Sans image</span>
                                             </div>
                                         )}
                                         {item.isSold && (
-                                            <div className="absolute top-2 right-2 px-2 py-1 bg-white/90 backdrop-blur text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-slate-100 shadow-sm">
+                                            <div className={cn(
+                                                "absolute top-1.5 right-1.5 bg-white/90 backdrop-blur text-slate-400 font-black uppercase tracking-widest rounded border border-slate-100 shadow-sm",
+                                                galleryDensity === 15 ? "px-1 py-0.5 text-[7px]" : galleryDensity === 10 ? "px-1.5 py-0.5 text-[8px]" : "px-2 py-1 text-[9px] rounded-lg"
+                                            )}>
                                                 Vendu
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="p-3 sm:p-4 flex-1 flex flex-col">
-                                        <div className="mb-2">
-                                            <h3 className="font-black text-slate-800 text-sm sm:text-base leading-tight line-clamp-2 mb-1 cursor-pointer hover:text-teal-600 transition-colors" onClick={() => handleOpenModal(item)}>
+                                    <div className={cn(
+                                        "flex-1 flex flex-col",
+                                        galleryDensity === 15 ? "p-1.5" : galleryDensity === 10 ? "p-2 sm:p-2.5" : "p-3 sm:p-4"
+                                    )}>
+                                        <div className={galleryDensity === 15 ? "mb-1" : "mb-2"}>
+                                            <h3 
+                                                className={cn(
+                                                    "font-black text-slate-800 leading-tight cursor-pointer hover:text-teal-600 transition-colors",
+                                                    galleryDensity === 15 
+                                                        ? "text-[10px] line-clamp-1" 
+                                                        : galleryDensity === 10 
+                                                        ? "text-xs line-clamp-1 mb-0.5" 
+                                                        : "text-sm sm:text-base line-clamp-2 mb-1"
+                                                )} 
+                                                onClick={() => handleOpenModal(item)}
+                                                title={item.name}
+                                            >
                                                 {item.name}
                                             </h3>
                                             {(item.series || item.cardNumber) && (
-                                                <p className="text-[11px] sm:text-xs font-bold text-slate-400 truncate">
+                                                <p className={cn(
+                                                    "font-bold text-slate-400 truncate",
+                                                    galleryDensity === 15 ? "text-[8px]" : galleryDensity === 10 ? "text-[9px]" : "text-[11px] sm:text-xs"
+                                                )}>
                                                     {(() => {
                                                         const series = POKEMON_SERIES.find(s => s.id === item.series);
                                                         const set = series?.sets.find(s => s.id === item.subSeries);
-                                                        const setName = set ? (isMobile ? set.shortName : set.name) : item.subSeries;
+                                                        const setName = set ? (isMobile || galleryDensity >= 10 ? set.shortName : set.name) : item.subSeries;
                                                         if (setName && item.cardNumber) return `${setName} • N°${item.cardNumber}`;
                                                         if (setName) return setName;
                                                         if (item.cardNumber) return `N°${item.cardNumber}`;
@@ -896,38 +976,56 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             )}
                                         </div>
 
-                                        <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                                            {item.language && (
-                                                <span className="text-[11px] sm:text-sm" title={`Langue: ${item.language}`}>
-                                                    {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
-                                                </span>
-                                            )}
-                                            {item.condition && (
-                                                <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest border ${
-                                                    item.condition === 'Mint' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                                    item.condition === 'Near Mint' ? 'bg-sky-100 text-sky-700 border-sky-200' :
-                                                    item.condition === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                                                    item.condition === 'Good' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                                                    item.condition === 'Light Played' ? 'bg-orange-100 text-orange-700 border-orange-200' :
-                                                    item.condition === 'Played' ? 'bg-red-100 text-red-600 border-red-200' :
-                                                    item.condition === 'Poor' ? 'bg-slate-600 text-white border-slate-700 shadow-sm' :
-                                                    'bg-stone-100 text-stone-600 border-stone-200'
-                                                }`}>
-                                                    {item.condition}
-                                                </span>
-                                            )}
-                                            {item.cardFinish && item.cardFinish !== 'Standard' && (
-                                                <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest ${
-                                                    item.cardFinish === 'Reverse' 
-                                                        ? 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 border border-amber-300' 
-                                                        : 'bg-gradient-to-r from-fuchsia-300 to-purple-500 text-white border border-purple-400'
-                                                }`}>
-                                                    {item.cardFinish === 'Reverse' ? '✨' : '🌟'}
-                                                </span>
-                                            )}
-                                        </div>
+                                        {/* Badges / Finishes - displayed in grand and compact in moyen */}
+                                        {galleryDensity === 5 && (
+                                            <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                                                {item.language && (
+                                                    <span className="text-[11px] sm:text-sm" title={`Langue: ${item.language}`}>
+                                                        {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
+                                                    </span>
+                                                )}
+                                                {item.condition && (
+                                                    <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest border ${
+                                                        item.condition === 'Mint' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                        item.condition === 'Near Mint' ? 'bg-sky-100 text-sky-700 border-sky-200' :
+                                                        item.condition === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                                        item.condition === 'Good' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                                        item.condition === 'Light Played' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                                        item.condition === 'Played' ? 'bg-red-100 text-red-600 border-red-200' :
+                                                        item.condition === 'Poor' ? 'bg-slate-600 text-white border-slate-700 shadow-sm' :
+                                                        'bg-stone-100 text-stone-600 border-stone-200'
+                                                    }`}>
+                                                        {item.condition}
+                                                    </span>
+                                                )}
+                                                {item.cardFinish && item.cardFinish !== 'Standard' && (
+                                                    <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest ${
+                                                        item.cardFinish === 'Reverse' 
+                                                            ? 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 border border-amber-300' 
+                                                            : 'bg-gradient-to-r from-fuchsia-300 to-purple-500 text-white border border-purple-400'
+                                                    }`}>
+                                                        {item.cardFinish === 'Reverse' ? '✨' : '🌟'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
 
-                                        {item.type === 'Carte' && (
+                                        {galleryDensity === 10 && (item.language || item.condition) && (
+                                            <div className="flex items-center gap-1 mb-2">
+                                                {item.language && (
+                                                    <span className="text-[10px]" title={`Langue: ${item.language}`}>
+                                                        {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
+                                                    </span>
+                                                )}
+                                                {item.condition && (
+                                                    <span className="px-1 py-0.2 rounded text-[8px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-200 truncate">
+                                                        {item.condition === 'Near Mint' ? 'NM' : item.condition === 'Light Played' ? 'LP' : item.condition}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {galleryDensity === 5 && item.type === 'Carte' && (
                                             <div className="flex flex-wrap gap-1.5 mb-3">
                                                 <a href={`https://www.vinted.fr/catalog?search_text=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-1 py-1 bg-teal-50 text-teal-600 rounded-md text-[9px] font-bold border border-teal-100 hover:bg-teal-100 transition-colors">Vinted</a>
                                                 <a href={`https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-1 py-1 bg-blue-50 text-blue-600 rounded-md text-[9px] font-bold border border-blue-100 hover:bg-blue-100 transition-colors">eBay</a>
@@ -935,42 +1033,88 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             </div>
                                         )}
 
-                                        <div className="mt-auto flex items-end justify-between pt-2 border-t border-slate-50">
+                                        <div className="mt-auto flex items-end justify-between pt-1.5 border-t border-slate-50">
                                             <div>
-                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Achat</p>
-                                                <p className="font-black text-slate-700 text-sm">{item.purchasePrice}€</p>
+                                                <p className={cn(
+                                                    "font-bold text-slate-400 uppercase tracking-widest mb-0.5",
+                                                    galleryDensity === 15 ? "text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
+                                                )}>Achat</p>
+                                                <p className={cn(
+                                                    "font-black text-slate-700",
+                                                    galleryDensity === 15 ? "text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
+                                                )}>{item.purchasePrice}€</p>
                                             </div>
                                             {item.isSold && item.soldPrice ? (
                                                 <div className="text-right">
-                                                    <p className="text-[9px] font-bold text-teal-500 uppercase tracking-widest mb-0.5">Vendu</p>
-                                                    <p className="font-black text-teal-600 text-sm">{item.soldPrice}€</p>
+                                                    <p className={cn(
+                                                        "font-bold text-teal-500 uppercase tracking-widest mb-0.5",
+                                                        galleryDensity === 15 ? "text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
+                                                    )}>Vendu</p>
+                                                    <p className={cn(
+                                                        "font-black text-teal-600",
+                                                        galleryDensity === 15 ? "text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
+                                                    )}>{item.soldPrice}€</p>
                                                 </div>
                                             ) : item.potentialResalePrice && item.potentialResalePrice > 0 ? (
                                                 <div className="text-right">
-                                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Côte</p>
-                                                    <p className="font-black text-slate-500 text-sm">{item.potentialResalePrice}€</p>
+                                                    <p className={cn(
+                                                        "font-bold text-slate-400 uppercase tracking-widest mb-0.5",
+                                                        galleryDensity === 15 ? "text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
+                                                    )}>Côte</p>
+                                                    <p className={cn(
+                                                        "font-black text-slate-500",
+                                                        galleryDensity === 15 ? "text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
+                                                    )}>{item.potentialResalePrice}€</p>
                                                 </div>
                                             ) : null}
                                         </div>
                                     </div>
 
                                     {/* Action Buttons Overlay (Desktop only) */}
-                                    <div className="absolute top-2 left-2 opacity-0 lg:group-hover:opacity-100 transition-opacity hidden lg:flex flex-col gap-1">
-                                        <button onClick={(e) => { e.stopPropagation(); handleOpenModal(item); }} className="p-2 bg-white/90 backdrop-blur hover:bg-white text-slate-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Modifier">
-                                            <Edit2 className="w-3.5 h-3.5" />
+                                    <div className="absolute top-1.5 left-1.5 opacity-0 lg:group-hover:opacity-100 transition-opacity hidden lg:flex flex-col gap-1">
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); handleOpenModal(item); }} 
+                                            className={cn(
+                                                "bg-white/90 backdrop-blur hover:bg-white text-slate-600 rounded-lg shadow-sm border border-slate-100 transition-colors",
+                                                galleryDensity === 15 ? "p-1" : galleryDensity === 10 ? "p-1.5" : "p-2"
+                                            )} 
+                                            title="Modifier"
+                                        >
+                                            <Edit2 className={galleryDensity === 15 ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} />
                                         </button>
                                         {!item.isSold && (
                                             <>
-                                                <button onClick={(e) => { e.stopPropagation(); setQrItem(item); }} className="p-2 bg-white/90 backdrop-blur hover:bg-white text-indigo-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="QR Code Vente">
-                                                    <QrCode className="w-3.5 h-3.5" />
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); setQrItem(item); }} 
+                                                    className={cn(
+                                                        "bg-white/90 backdrop-blur hover:bg-white text-indigo-600 rounded-lg shadow-sm border border-slate-100 transition-colors",
+                                                        galleryDensity === 15 ? "p-1" : galleryDensity === 10 ? "p-1.5" : "p-2"
+                                                    )} 
+                                                    title="QR Code Vente"
+                                                >
+                                                    <QrCode className={galleryDensity === 15 ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} />
                                                 </button>
-                                                <button onClick={(e) => { e.stopPropagation(); handleMarkAsSold(item.id); }} className="p-2 bg-white/90 backdrop-blur hover:bg-white text-teal-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Marquer comme vendu">
-                                                    <DollarSign className="w-3.5 h-3.5" />
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); handleMarkAsSold(item.id); }} 
+                                                    className={cn(
+                                                        "bg-white/90 backdrop-blur hover:bg-white text-teal-600 rounded-lg shadow-sm border border-slate-100 transition-colors",
+                                                        galleryDensity === 15 ? "p-1" : galleryDensity === 10 ? "p-1.5" : "p-2"
+                                                    )} 
+                                                    title="Marquer comme vendu"
+                                                >
+                                                    <DollarSign className={galleryDensity === 15 ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} />
                                                 </button>
                                             </>
                                         )}
-                                        <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="p-2 bg-white/90 backdrop-blur hover:bg-red-50 text-red-500 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Supprimer">
-                                            <Trash2 className="w-3.5 h-3.5" />
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} 
+                                            className={cn(
+                                                "bg-white/90 backdrop-blur hover:bg-red-50 text-red-500 rounded-lg shadow-sm border border-slate-100 transition-colors",
+                                                galleryDensity === 15 ? "p-1" : galleryDensity === 10 ? "p-1.5" : "p-2"
+                                            )} 
+                                            title="Supprimer"
+                                        >
+                                            <Trash2 className={galleryDensity === 15 ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} />
                                         </button>
                                     </div>
                                     

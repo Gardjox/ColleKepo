@@ -90,13 +90,18 @@ export function getTcgdexSetId(setId: string): string {
         'Set-de-Base-e1': 'base1',
         'Jungle': 'base2',
         'Fossile': 'base3',
+        'Set-de-Base-ed2': 'base4',
         'Team-Rocket': 'base5',
+        'Gym-Heroes': 'gym1',
+        'Gym-Challenge': 'gym2',
         'Neo-Genesis': 'neo1',
         'Neo-Discovery': 'neo2',
         'Neo-Revelation': 'neo3',
         'Neo-Destiny': 'neo4',
+        'Legendary-Collection': 'lc',
         'Expedition': 'ecard1',
         'Aquapolis': 'ecard2',
+        'Skyridge': 'ecard3',
 
         // Promos & other standard ones
         'SLPromos': 'smp',
