@@ -403,7 +403,7 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                         </div>
 
                         {viewMode === 'gallery' && (
-                            <div className="flex items-center bg-slate-50 border border-slate-100 p-1 rounded-xl text-[10px] font-bold">
+                            <div className="hidden md:flex items-center bg-slate-50 border border-slate-100 p-1 rounded-xl text-[10px] font-bold">
                                 <button
                                     onClick={() => setGalleryDensity(5)}
                                     className={cn(
@@ -903,17 +903,17 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                         <div className={cn(
                             "bg-slate-50/30 transition-all",
                             galleryDensity === 15
-                                ? "grid grid-cols-3 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-12 xl:grid-cols-[repeat(15,minmax(0,1fr))] gap-1.5 sm:gap-2 p-2 sm:p-3"
+                                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-8 lg:grid-cols-12 xl:grid-cols-[repeat(15,minmax(0,1fr))] gap-2 sm:gap-3 md:gap-1.5 p-2 sm:p-4 md:p-2"
                                 : galleryDensity === 10
-                                ? "grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2.5 sm:gap-3 p-3 sm:p-4"
-                                : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 p-4 sm:p-6"
+                                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2.5 sm:gap-3 p-2.5 sm:p-4"
+                                : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6"
                         )}>
                             {filteredItems.map((item) => (
                                 <div key={item.id} className="group relative flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                                     <div 
                                         className={cn(
                                             "relative w-full aspect-[3/4] bg-slate-50 cursor-pointer overflow-hidden border-b border-slate-100 flex items-center justify-center",
-                                            galleryDensity === 15 ? "p-1" : galleryDensity === 10 ? "p-1.5" : "p-2"
+                                            galleryDensity === 15 ? "p-1.5 md:p-1" : galleryDensity === 10 ? "p-1.5" : "p-2"
                                         )}
                                         onClick={() => setZoomItem(item)}
                                     >
@@ -925,14 +925,14 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             />
                                         ) : (
                                             <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
-                                                <ImageIcon className={cn(galleryDensity === 15 ? "w-4 h-4 mb-1" : galleryDensity === 10 ? "w-6 h-6 mb-1" : "w-8 h-8 mb-2", "opacity-30")} />
-                                                <span className={cn(galleryDensity === 15 ? "text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[10px]", "font-bold uppercase")}>Sans image</span>
+                                                <ImageIcon className={cn(galleryDensity === 15 ? "w-6 h-6 md:w-4 md:h-4 mb-1" : galleryDensity === 10 ? "w-6 h-6 mb-1" : "w-8 h-8 mb-2", "opacity-30")} />
+                                                <span className={cn(galleryDensity === 15 ? "text-[8px] md:text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[10px]", "font-bold uppercase")}>Sans image</span>
                                             </div>
                                         )}
                                         {item.isSold && (
                                             <div className={cn(
                                                 "absolute top-1.5 right-1.5 bg-white/90 backdrop-blur text-slate-400 font-black uppercase tracking-widest rounded border border-slate-100 shadow-sm",
-                                                galleryDensity === 15 ? "px-1 py-0.5 text-[7px]" : galleryDensity === 10 ? "px-1.5 py-0.5 text-[8px]" : "px-2 py-1 text-[9px] rounded-lg"
+                                                galleryDensity === 15 ? "px-1.5 py-0.5 text-[8px] md:text-[7px]" : galleryDensity === 10 ? "px-1.5 py-0.5 text-[8px]" : "px-2 py-1 text-[9px] rounded-lg"
                                             )}>
                                                 Vendu
                                             </div>
@@ -941,16 +941,16 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
 
                                     <div className={cn(
                                         "flex-1 flex flex-col",
-                                        galleryDensity === 15 ? "p-1.5" : galleryDensity === 10 ? "p-2 sm:p-2.5" : "p-3 sm:p-4"
+                                        galleryDensity === 15 ? "p-2.5 md:p-1.5" : galleryDensity === 10 ? "p-2.5 md:p-2" : "p-3 sm:p-4"
                                     )}>
                                         <div className={galleryDensity === 15 ? "mb-1" : "mb-2"}>
                                             <h3 
                                                 className={cn(
                                                     "font-black text-slate-800 leading-tight cursor-pointer hover:text-teal-600 transition-colors",
                                                     galleryDensity === 15 
-                                                        ? "text-[10px] line-clamp-1" 
+                                                        ? "text-xs md:text-[10px] line-clamp-1" 
                                                         : galleryDensity === 10 
-                                                        ? "text-xs line-clamp-1 mb-0.5" 
+                                                        ? "text-xs md:text-xs line-clamp-1 mb-0.5" 
                                                         : "text-sm sm:text-base line-clamp-2 mb-1"
                                                 )} 
                                                 onClick={() => handleOpenModal(item)}
@@ -961,7 +961,7 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             {(item.series || item.cardNumber) && (
                                                 <p className={cn(
                                                     "font-bold text-slate-400 truncate",
-                                                    galleryDensity === 15 ? "text-[8px]" : galleryDensity === 10 ? "text-[9px]" : "text-[11px] sm:text-xs"
+                                                    galleryDensity === 15 ? "text-[9px] md:text-[8px]" : galleryDensity === 10 ? "text-[9px]" : "text-[11px] sm:text-xs"
                                                 )}>
                                                     {(() => {
                                                         const series = POKEMON_SERIES.find(s => s.id === item.series);
@@ -976,42 +976,44 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             )}
                                         </div>
 
-                                        {/* Badges / Finishes - displayed in grand and compact in moyen */}
-                                        {galleryDensity === 5 && (
-                                            <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                                                {item.language && (
-                                                    <span className="text-[11px] sm:text-sm" title={`Langue: ${item.language}`}>
-                                                        {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
-                                                    </span>
-                                                )}
-                                                {item.condition && (
-                                                    <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest border ${
-                                                        item.condition === 'Mint' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                                        item.condition === 'Near Mint' ? 'bg-sky-100 text-sky-700 border-sky-200' :
-                                                        item.condition === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                                                        item.condition === 'Good' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                                                        item.condition === 'Light Played' ? 'bg-orange-100 text-orange-700 border-orange-200' :
-                                                        item.condition === 'Played' ? 'bg-red-100 text-red-600 border-red-200' :
-                                                        item.condition === 'Poor' ? 'bg-slate-600 text-white border-slate-700 shadow-sm' :
-                                                        'bg-stone-100 text-stone-600 border-stone-200'
-                                                    }`}>
-                                                        {item.condition}
-                                                    </span>
-                                                )}
-                                                {item.cardFinish && item.cardFinish !== 'Standard' && (
-                                                    <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest ${
-                                                        item.cardFinish === 'Reverse' 
-                                                            ? 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 border border-amber-300' 
-                                                            : 'bg-gradient-to-r from-fuchsia-300 to-purple-500 text-white border border-purple-400'
-                                                    }`}>
-                                                        {item.cardFinish === 'Reverse' ? '✨' : '🌟'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        )}
+                                        {/* Badges / Finishes - always shown on mobile, and on desktop for density 5 */}
+                                        <div className={cn(
+                                            "flex flex-wrap items-center gap-1 sm:gap-1.5 mb-2 sm:mb-3",
+                                            galleryDensity !== 5 && "md:hidden"
+                                        )}>
+                                            {item.language && (
+                                                <span className="text-[11px] sm:text-sm" title={`Langue: ${item.language}`}>
+                                                    {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
+                                                </span>
+                                            )}
+                                            {item.condition && (
+                                                <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest border ${
+                                                    item.condition === 'Mint' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                    item.condition === 'Near Mint' ? 'bg-sky-100 text-sky-700 border-sky-200' :
+                                                    item.condition === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                                    item.condition === 'Good' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                                    item.condition === 'Light Played' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                                    item.condition === 'Played' ? 'bg-red-100 text-red-600 border-red-200' :
+                                                    item.condition === 'Poor' ? 'bg-slate-600 text-white border-slate-700 shadow-sm' :
+                                                    'bg-stone-100 text-stone-600 border-stone-200'
+                                                }`}>
+                                                    {item.condition}
+                                                </span>
+                                            )}
+                                            {item.cardFinish && item.cardFinish !== 'Standard' && (
+                                                <span className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-widest ${
+                                                    item.cardFinish === 'Reverse' 
+                                                        ? 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 border border-amber-300' 
+                                                        : 'bg-gradient-to-r from-fuchsia-300 to-purple-500 text-white border border-purple-400'
+                                                }`}>
+                                                    {item.cardFinish === 'Reverse' ? '✨' : '🌟'}
+                                                </span>
+                                            )}
+                                        </div>
 
+                                        {/* Compact badges on desktop for density 10 */}
                                         {galleryDensity === 10 && (item.language || item.condition) && (
-                                            <div className="flex items-center gap-1 mb-2">
+                                            <div className="hidden md:flex items-center gap-1 mb-2">
                                                 {item.language && (
                                                     <span className="text-[10px]" title={`Langue: ${item.language}`}>
                                                         {item.language === 'FR' ? '🇫🇷' : item.language === 'JAP' ? '🇯🇵' : item.language === 'EN' ? '🇺🇸' : item.language}
@@ -1025,8 +1027,12 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             </div>
                                         )}
 
-                                        {galleryDensity === 5 && item.type === 'Carte' && (
-                                            <div className="flex flex-wrap gap-1.5 mb-3">
+                                        {/* Quick Links Vinted / eBay / Cardmarket */}
+                                        {item.type === 'Carte' && (
+                                            <div className={cn(
+                                                "flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-3",
+                                                galleryDensity !== 5 && "md:hidden"
+                                            )}>
                                                 <a href={`https://www.vinted.fr/catalog?search_text=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-1 py-1 bg-teal-50 text-teal-600 rounded-md text-[9px] font-bold border border-teal-100 hover:bg-teal-100 transition-colors">Vinted</a>
                                                 <a href={`https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-1 py-1 bg-blue-50 text-blue-600 rounded-md text-[9px] font-bold border border-blue-100 hover:bg-blue-100 transition-colors">eBay</a>
                                                 <a href={`https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=${encodeURIComponent(item.name + (item.cardNumber ? ' ' + item.cardNumber : ''))}`} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-1 py-1 bg-sky-50 text-sky-600 rounded-md text-[9px] font-bold border border-sky-100 hover:bg-sky-100 transition-colors">Cardmarket</a>
@@ -1037,33 +1043,33 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                                             <div>
                                                 <p className={cn(
                                                     "font-bold text-slate-400 uppercase tracking-widest mb-0.5",
-                                                    galleryDensity === 15 ? "text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
+                                                    galleryDensity === 15 ? "text-[8px] md:text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
                                                 )}>Achat</p>
                                                 <p className={cn(
                                                     "font-black text-slate-700",
-                                                    galleryDensity === 15 ? "text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
+                                                    galleryDensity === 15 ? "text-xs md:text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
                                                 )}>{item.purchasePrice}€</p>
                                             </div>
                                             {item.isSold && item.soldPrice ? (
                                                 <div className="text-right">
                                                     <p className={cn(
                                                         "font-bold text-teal-500 uppercase tracking-widest mb-0.5",
-                                                        galleryDensity === 15 ? "text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
+                                                        galleryDensity === 15 ? "text-[8px] md:text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
                                                     )}>Vendu</p>
                                                     <p className={cn(
                                                         "font-black text-teal-600",
-                                                        galleryDensity === 15 ? "text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
+                                                        galleryDensity === 15 ? "text-xs md:text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
                                                     )}>{item.soldPrice}€</p>
                                                 </div>
                                             ) : item.potentialResalePrice && item.potentialResalePrice > 0 ? (
                                                 <div className="text-right">
                                                     <p className={cn(
                                                         "font-bold text-slate-400 uppercase tracking-widest mb-0.5",
-                                                        galleryDensity === 15 ? "text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
+                                                        galleryDensity === 15 ? "text-[8px] md:text-[7px]" : galleryDensity === 10 ? "text-[8px]" : "text-[9px]"
                                                     )}>Côte</p>
                                                     <p className={cn(
                                                         "font-black text-slate-500",
-                                                        galleryDensity === 15 ? "text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
+                                                        galleryDensity === 15 ? "text-xs md:text-[10px]" : galleryDensity === 10 ? "text-xs" : "text-sm"
                                                     )}>{item.potentialResalePrice}€</p>
                                                 </div>
                                             ) : null}
