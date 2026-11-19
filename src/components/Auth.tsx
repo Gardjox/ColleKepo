@@ -12,13 +12,21 @@ const Auth: React.FC = () => {
         e.preventDefault();
         setLoading(true);
 
+        const cleanEmail = email.trim();
+
         try {
             if (isSignUp) {
-                const { error } = await supabase.auth.signUp({ email, password });
+                const { error } = await supabase.auth.signUp({ 
+                    email: cleanEmail, 
+                    password,
+                    options: {
+                        emailRedirectTo: window.location.origin
+                    }
+                });
                 if (error) throw error;
                 alert('Vérifiez votre email pour confirmer l\'inscription !');
             } else {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
                 if (error) throw error;
             }
         } catch (error: any) {
@@ -79,11 +87,14 @@ const Auth: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={async () => {
-                                            if (!email) {
+                                            const cleanEmail = email.trim();
+                                            if (!cleanEmail) {
                                                 alert('Veuillez entrer votre email pour réinitialiser votre mot de passe.');
                                                 return;
                                             }
-                                            const { error } = await supabase.auth.resetPasswordForEmail(email);
+                                            const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+                                                redirectTo: window.location.origin
+                                            });
                                             if (error) alert(error.message);
                                             else alert('Email de réinitialisation envoyé ! (Vérifiez vos spams)');
                                         }}

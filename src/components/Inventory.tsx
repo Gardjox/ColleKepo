@@ -26,6 +26,7 @@ import { supabase } from '../lib/supabase';
 import type { InventoryItem, ProductType } from '../types';
 import { POKEMON_SERIES } from '../data/pokemonSets';
 import AddItemModal from './AddItemModal';
+import { validateImageFile, getSafeStoragePath, parseSafePrice } from '../utils/security';
 
 type SortOption = 'created_at' | 'purchase_newest' | 'purchase_oldest' | 'sold_newest' | 'sold_oldest' | 'price_high' | 'price_low';
 
@@ -87,9 +88,16 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
     const fetchItems = async () => {
         setLoading(true);
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setItems([]);
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('items')
                 .select('*')
+                .eq('user_id', user.id)
                 .eq('is_personal', isPersonal)
                 .order('created_at', { ascending: false });
 
@@ -162,14 +170,22 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
     const handleSaveItem = async (newItem: any, file: File | null) => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            if (!user) {
+                alert('Session expirée. Veuillez vous reconnecter.');
+                return;
+            }
 
             let photoUrl = editingItem?.photoUrl || '';
 
             if (file) {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Math.random()}.${fileExt}`;
-                const filePath = `${user.id}/${fileName}`;
+                // Validation de sécurité du fichier (taille, extension, type MIME)
+                const validation = validateImageFile(file);
+                if (!validation.valid) {
+                    alert(validation.error);
+                    return;
+                }
+
+                const filePath = getSafeStoragePath(user.id, file.name);
 
                 const { error: uploadError } = await supabase.storage
                     .from('items')
@@ -185,7 +201,7 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
             }
 
             const itemData = {
-                name: newItem.name,
+                name: (newItem.name || '').trim(),
                 type: newItem.type,
                 series: newItem.series || null,
                 sub_series: newItem.subSeries || null,
@@ -193,11 +209,11 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                 condition: newItem.condition || null,
                 card_finish: newItem.cardFinish || null,
                 card_number: newItem.cardNumber || null,
-                purchase_price: parseFloat(newItem.purchasePrice) || 0,
-                potential_resale_price: parseFloat(newItem.potentialResalePrice) || 0,
-                purchase_location: newItem.purchaseLocation,
+                purchase_price: parseSafePrice(newItem.purchasePrice),
+                potential_resale_price: parseSafePrice(newItem.potentialResalePrice),
+                purchase_location: newItem.purchaseLocation || '',
                 purchase_date: newItem.purchaseDate,
-                details: newItem.details,
+                details: newItem.details || '',
                 photo_url: photoUrl,
                 user_id: user.id,
                 is_personal: isPersonal
@@ -207,7 +223,8 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
                 const { error } = await supabase
                     .from('items')
                     .update(itemData)
-                    .eq('id', editingItem.id);
+                    .eq('id', editingItem.id)
+                    .eq('user_id', user.id);
                 if (error) throw error;
             } else {
                 const { error } = await supabase
@@ -224,20 +241,30 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
     };
 
     const handleMarkAsSold = async (id: string) => {
-        const soldPrice = prompt('Quel est le prix de vente final (€) ?');
-        if (soldPrice === null || isNaN(parseFloat(soldPrice))) return;
+        const soldPriceInput = prompt('Quel est le prix de vente final (€) ?');
+        if (soldPriceInput === null) return;
+        
+        const soldPrice = parseSafePrice(soldPriceInput, -1);
+        if (soldPrice < 0) {
+            alert('Veuillez entrer un montant valide positif (ex: 15.50).');
+            return;
+        }
 
         const today = new Date().toISOString().split('T')[0];
 
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
             const { error } = await supabase
                 .from('items')
                 .update({
                     is_sold: true,
-                    sold_price: parseFloat(soldPrice),
+                    sold_price: soldPrice,
                     sold_date: today
                 })
-                .eq('id', id);
+                .eq('id', id)
+                .eq('user_id', user.id);
 
             if (error) throw error;
             fetchItems();
@@ -249,10 +276,14 @@ const Inventory: React.FC<InventoryProps> = ({ isPersonal = false, initialType =
     const handleDelete = async (id: string) => {
         if (!confirm('Supprimer cet article ?')) return;
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
             const { error } = await supabase
                 .from('items')
                 .delete()
-                .eq('id', id);
+                .eq('id', id)
+                .eq('user_id', user.id);
             if (error) throw error;
             fetchItems();
         } catch (error: any) {

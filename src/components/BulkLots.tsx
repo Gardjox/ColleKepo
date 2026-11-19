@@ -3,6 +3,7 @@ import { Layers, Calculator, Info, Plus, Trash2, Loader2, Calendar, Camera, Edit
 import { supabase } from '../lib/supabase';
 import { POKEMON_SERIES } from '../data/pokemonSets';
 import { fetchCardsForSet } from '../utils/tcgdex';
+import { validateImageFile, getSafeStoragePath, parseSafePrice } from '../utils/security';
 
 interface Lot {
     id: string;
@@ -81,9 +82,16 @@ const BulkLots: React.FC = () => {
     const fetchLots = async () => {
         setLoading(true);
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setLots([]);
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('lots')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -102,6 +110,12 @@ const BulkLots: React.FC = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            const validation = validateImageFile(file);
+            if (!validation.valid) {
+                alert(validation.error);
+                e.target.value = '';
+                return;
+            }
             setNewItemPhoto(file);
             const url = URL.createObjectURL(file);
             setNewItemPreview(url);
@@ -141,6 +155,9 @@ const BulkLots: React.FC = () => {
     const handleEditLot = async (lot: Lot) => {
         setLoading(true);
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
             setEditingLotId(lot.id);
             setLotName(lot.name);
             setLotPrice(lot.purchase_price.toString());
@@ -148,7 +165,8 @@ const BulkLots: React.FC = () => {
             const { data: dbItems, error } = await supabase
                 .from('items')
                 .select('*')
-                .eq('lot_id', lot.id);
+                .eq('lot_id', lot.id)
+                .eq('user_id', user.id);
 
             if (error) throw error;
 
@@ -179,9 +197,10 @@ const BulkLots: React.FC = () => {
     };
 
     const handleSaveLot = async () => {
-        const finalLotPrice = parseFloat(lotPrice) || 0;
+        const finalLotPrice = parseSafePrice(lotPrice, 0);
+        const cleanLotName = (lotName || '').trim();
         
-        if (!lotName || finalLotPrice < 0 || composedItems.length === 0) {
+        if (!cleanLotName || finalLotPrice < 0 || composedItems.length === 0) {
             alert('Veuillez remplir le nom, un prix valide et ajouter au moins un article au lot.');
             return;
         }
@@ -189,40 +208,46 @@ const BulkLots: React.FC = () => {
         setIsSaving(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            if (!user) {
+                alert('Session expirée. Veuillez vous reconnecter.');
+                return;
+            }
 
             let currentLotId = editingLotId;
-            let currentBreakEven = parseFloat(breakEven);
+            let currentBreakEven = parseSafePrice(breakEven, 0);
 
             if (editingLotId) {
                 const { error: lotError } = await supabase
                     .from('lots')
                     .update({
-                        name: lotName,
+                        name: cleanLotName,
                         purchase_price: finalLotPrice,
                         item_count: itemCount,
                         break_even_price: currentBreakEven
                     })
-                    .eq('id', editingLotId);
+                    .eq('id', editingLotId)
+                    .eq('user_id', user.id);
 
                 if (lotError) throw lotError;
 
                 const { data: originalItems, error: fetchError } = await supabase
                     .from('items')
                     .select('id')
-                    .eq('lot_id', editingLotId);
+                    .eq('lot_id', editingLotId)
+                    .eq('user_id', user.id);
 
                 if (fetchError) throw fetchError;
 
                 const composedIds = composedItems.map(i => i.id).filter(id => id);
-                const originalIds = originalItems.map((i: any) => i.id);
+                const originalIds = (originalItems || []).map((i: any) => i.id);
                 const idsToDelete = originalIds.filter((id: string) => !composedIds.includes(id));
 
                 if (idsToDelete.length > 0) {
                     const { error: deleteError } = await supabase
                         .from('items')
                         .delete()
-                        .in('id', idsToDelete);
+                        .in('id', idsToDelete)
+                        .eq('user_id', user.id);
                     if (deleteError) throw deleteError;
                 }
             } else {
@@ -230,7 +255,7 @@ const BulkLots: React.FC = () => {
                     .from('lots')
                     .insert([{
                         user_id: user.id,
-                        name: lotName,
+                        name: cleanLotName,
                         purchase_price: finalLotPrice,
                         item_count: itemCount,
                         break_even_price: currentBreakEven
@@ -248,9 +273,13 @@ const BulkLots: React.FC = () => {
                 let photoUrl = item.previewUrl || '';
 
                 if (item.photo) {
-                    const fileExt = item.photo.name.split('.').pop();
-                    const fileName = `${Math.random()}.${fileExt}`;
-                    const filePath = `${user.id}/${fileName}`;
+                    const validation = validateImageFile(item.photo);
+                    if (!validation.valid) {
+                        alert(validation.error);
+                        return;
+                    }
+
+                    const filePath = getSafeStoragePath(user.id, item.photo.name);
 
                     const { error: uploadError } = await supabase.storage
                         .from('items')
@@ -268,7 +297,7 @@ const BulkLots: React.FC = () => {
                     const { error: updateError } = await supabase
                         .from('items')
                         .update({
-                            name: item.name,
+                            name: (item.name || '').trim(),
                             type: item.type,
                             series: item.series || null,
                             sub_series: item.subSeries || null,
@@ -277,11 +306,12 @@ const BulkLots: React.FC = () => {
                             card_finish: item.cardFinish || null,
                             card_number: item.cardNumber || null,
                             purchase_price: currentBreakEven,
-                            potential_resale_price: item.potentialResalePrice || 0,
-                            purchase_location: lotName,
+                            potential_resale_price: parseSafePrice(item.potentialResalePrice, 0),
+                            purchase_location: cleanLotName,
                             photo_url: photoUrl
                         })
-                        .eq('id', item.id);
+                        .eq('id', item.id)
+                        .eq('user_id', user.id);
                         
                     if (updateError) throw updateError;
                 } else {
@@ -289,7 +319,7 @@ const BulkLots: React.FC = () => {
                         itemsToInsert.push({
                             user_id: user.id,
                             lot_id: currentLotId,
-                            name: item.quantity > 1 ? `${item.name} (${i + 1}/${item.quantity})` : item.name,
+                            name: item.quantity > 1 ? `${item.name.trim()} (${i + 1}/${item.quantity})` : item.name.trim(),
                             type: item.type,
                             series: item.series || null,
                             sub_series: item.subSeries || null,
@@ -298,8 +328,8 @@ const BulkLots: React.FC = () => {
                             card_finish: item.cardFinish || null,
                             card_number: item.cardNumber || null,
                             purchase_price: currentBreakEven,
-                            potential_resale_price: item.potentialResalePrice || 0,
-                            purchase_location: lotName,
+                            potential_resale_price: parseSafePrice(item.potentialResalePrice, 0),
+                            purchase_location: cleanLotName,
                             photo_url: photoUrl,
                             is_sold: false
                         });
@@ -331,11 +361,15 @@ const BulkLots: React.FC = () => {
     const handleDeleteLot = async (id: string) => {
         if (!confirm('Attention : Supprimer ce lot supprimera également DÉFINITIVEMENT tous les articles qui y sont rattachés dans votre inventaire. Voulez-vous continuer ?')) return;
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
             // 1. Supprimer les articles rattachés au lot d'abord
             const { error: itemsDeleteError } = await supabase
                 .from('items')
                 .delete()
-                .eq('lot_id', id);
+                .eq('lot_id', id)
+                .eq('user_id', user.id);
 
             if (itemsDeleteError) throw itemsDeleteError;
 
@@ -343,7 +377,8 @@ const BulkLots: React.FC = () => {
             const { error } = await supabase
                 .from('lots')
                 .delete()
-                .eq('id', id);
+                .eq('id', id)
+                .eq('user_id', user.id);
 
             if (error) throw error;
             fetchLots();

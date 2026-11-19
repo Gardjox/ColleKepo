@@ -22,9 +22,16 @@ const Collection: React.FC = () => {
     const fetchCollectionStats = async () => {
         setLoadingStats(true);
         try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setLoadingStats(false);
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('items')
                 .select('purchase_price, potential_resale_price')
+                .eq('user_id', user.id)
                 .eq('is_personal', true);
 
             if (error) throw error;

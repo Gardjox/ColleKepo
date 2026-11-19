@@ -3,6 +3,7 @@ import { X, Camera, Save, Upload, Calendar, ChevronDown } from 'lucide-react';
 import { POKEMON_SERIES } from '../data/pokemonSets';
 import type { ProductType, InventoryItem } from '../types';
 import { fetchCardsForSet } from '../utils/tcgdex';
+import { validateImageFile } from '../utils/security';
 
 interface AddItemModalProps {
     isOpen: boolean;
@@ -117,6 +118,12 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onSave, in
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            const validation = validateImageFile(file);
+            if (!validation.valid) {
+                alert(validation.error);
+                e.target.value = '';
+                return;
+            }
             setSelectedFile(file);
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);

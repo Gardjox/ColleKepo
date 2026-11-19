@@ -31,10 +31,17 @@ const Dashboard: React.FC = () => {
     const fetchDashboardData = async () => {
         setLoading(true);
         try {
-            // 1. Récupérer tous les articles
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setLoading(false);
+                return;
+            }
+
+            // 1. Récupérer tous les articles de l'utilisateur
             const { data: items, error: itemsError } = await supabase
                 .from('items')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (itemsError) throw itemsError;
